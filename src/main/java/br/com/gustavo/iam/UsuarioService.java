@@ -2,46 +2,89 @@ package br.com.gustavo.iam;
 
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 // Service responsável por controlar os usuários em memória.
-// Agora, ele simula uma base de dados simples.
-// Futuramente, essa responsabilidade vai substituída por um Repository com banco de dados.
+// Ele simula uma base de dados simples.
+// Futuramente, essa responsabilidade pode ser substituída por um Repository.
 
 @Service
 public class UsuarioService {
 
-    // Map usado para guardar os usuários em memória.
-    // A chave é o e-mail do usuário.
+    // Map usado pra guardar os usuários em memória.
+    // Chave é o e-mail do usuário.
     // O valor é o objeto Usuario.
     private final Map<String, Usuario> usuarios = new HashMap<>();
 
     // Construtor do service.
     // Quando o Spring cria esse service, ele já cadastra alguns usuários iniciais pra teste.
     public UsuarioService() {
-        cadastrar(new Usuario("Gustavo", "gustavo@email.com", Role.ADMIN, true));
-        cadastrar(new Usuario("Maria", "maria@email.com", Role.GESTOR, true));
-        cadastrar(new Usuario("João", "joao@email.com", Role.USER, false));
+        cadastrarUsuarioInicial(new Usuario("Gustavo", "gustavo@email.com", Role.ADMIN, true));
+        cadastrarUsuarioInicial(new Usuario("Maria", "maria@email.com", Role.GESTOR, true));
+        cadastrarUsuarioInicial(new Usuario("João", "joao@email.com", Role.USER, false));
     }
 
-    // Retorna todos os usuários cadastrados.
-    // Como usei Map, os usuários ficam guardados nos valores do Map.
-    public Collection<Usuario> listarTodos() {
-        return usuarios.values();
+    // Retorna todos os usuários cadastrados já convertidos pra UsuarioResponse.
+    public Collection<UsuarioResponse> listarTodos() {
+        Collection<UsuarioResponse> responses = new ArrayList<>();
+
+        for (Usuario usuario : usuarios.values()) {
+            UsuarioResponse response = converterParaResponse(usuario);
+            responses.add(response);
+        }
+
+        return responses;
     }
 
-    // Busca um usuário por e-mail.
-    // Como o e-mail é a chave do Map, consegui buscar direto sem percorrer uma lista.
+    // Busca um usuário pelo e-mail e devolve como UsuarioResponse.
+    // Se o usuário não existir, retorna null por enquanto.
+    public UsuarioResponse buscarResponsePorEmail(String email) {
+        Usuario usuario = buscarPorEmail(email);
+
+        if (usuario == null) {
+            return null;
+        }
+
+        return converterParaResponse(usuario);
+    }
+
+    // Busca um usuário pelo e-mail.
+    // Esse metodo continua retornando Usuario porque o ControleAcessoService precisa do objeto interno.
     public Usuario buscarPorEmail(String email) {
         return usuarios.get(email);
     }
 
-    // Cadastra um novo usuário em memória.
-    // O e-mail é usado como chave para guardar o usuário no Map.
-    public Usuario cadastrar(Usuario usuario) {
+    // Cadastra um novo usuário a partir do DTO CriarUsuarioRequest.
+    // Depois devolve os dados cadastrados como UsuarioResponse.
+    public UsuarioResponse cadastrar(CriarUsuarioRequest request) {
+        Usuario usuario = new Usuario(
+                request.getNome(),
+                request.getEmail(),
+                request.getRole(),
+                request.isMfaAtivo()
+        );
+
         usuarios.put(usuario.getEmail(), usuario);
-        return usuario;
+
+        return converterParaResponse(usuario);
+    }
+
+    // Metodo usado apenas para carregar usuários iniciais.
+    // Ele evita repetir usuarios.put(...) dentro do construtor.
+    private void cadastrarUsuarioInicial(Usuario usuario) {
+        usuarios.put(usuario.getEmail(), usuario);
+    }
+
+    // Converte o objeto interno Usuario para o DTO de saída UsuarioResponse.
+    private UsuarioResponse converterParaResponse(Usuario usuario) {
+        return new UsuarioResponse(
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getRole(),
+                usuario.isMfaAtivo()
+        );
     }
 }
