@@ -21,4 +21,11 @@ public class VerificarAcessoRequest {
         return permissao;
     }
 
+    public void setPermissao(Permissao permissao) {
+        this.permissao = permissao;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
