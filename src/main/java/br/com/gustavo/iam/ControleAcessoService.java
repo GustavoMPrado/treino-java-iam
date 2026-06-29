@@ -1,3 +1,5 @@
+package br.com.gustavo.iam;
+
 // Classe responsável por verificar se um usuário pode executar uma determinada ação.
 // Ela consulta as permissões da role do usuário e também verifica se o MFA está ativo.
 // Neste exercício, ela simula uma regra simples de autorização dentro de um sistema IAM.

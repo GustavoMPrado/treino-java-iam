@@ -1,3 +1,5 @@
+package br.com.gustavo.iam;
+
 // Classe que representa um usuário do sistema.
 // Cada usuário possui nome, e-mail, uma role/perfil de acesso e a informação se o MFA está ativo.
 // Neste exercício, o usuário não decide suas permissões diretamente.

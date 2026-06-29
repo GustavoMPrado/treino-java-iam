@@ -1,3 +1,6 @@
+package br.com.gustavo.iam;
+
+
 import java.util.List;
 
 // Enum que representa os perfis de acesso do sistema.
