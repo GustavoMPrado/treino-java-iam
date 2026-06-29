@@ -60,6 +60,10 @@ public class UsuarioService {
     // Cadastra um novo usuário a partir do DTO CriarUsuarioRequest.
     // Depois devolve os dados cadastrados como UsuarioResponse.
     public UsuarioResponse cadastrar(CriarUsuarioRequest request) {
+        if (usuarios.containsKey(request.getEmail())) {
+            throw new UsuarioJaExisteException(request.getEmail());
+        }
+
         Usuario usuario = new Usuario(
                 request.getNome(),
                 request.getEmail(),

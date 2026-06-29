@@ -1,0 +1,20 @@
+package br.com.gustavo.iam;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+// Classe responsável pelo tratamento de erros da API de forma centralizada.
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+    @ExceptionHandler(UsuarioJaExisteException.class)
+    public ResponseEntity<ErroResponse> tratarUsuarioJaExiste(UsuarioJaExisteException exception) {
+        ErroResponse erro = new ErroResponse(exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(erro);
+    }
+}
