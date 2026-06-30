@@ -17,4 +17,13 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(erro);
     }
+
+    @ExceptionHandler(UsuarioNaoEncontradoException.class)
+    public ResponseEntity<ErroResponse> tratarUsuarioNaoEncontrado(UsuarioNaoEncontradoException exception) {
+        ErroResponse erro = new ErroResponse(exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(erro);
+    }
 }

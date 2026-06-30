@@ -40,12 +40,12 @@ public class UsuarioService {
     }
 
     // Busca um usuário pelo e-mail e devolve como UsuarioResponse.
-    // Se o usuário não existir, retorna null por enquanto.
+    // Se o usuário não existir, lança uma exceção para a API responder 404.
     public UsuarioResponse buscarResponsePorEmail(String email) {
         Usuario usuario = buscarPorEmail(email);
 
         if (usuario == null) {
-            return null;
+            throw new UsuarioNaoEncontradoException(email);
         }
 
         return converterParaResponse(usuario);
