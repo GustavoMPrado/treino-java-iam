@@ -12,7 +12,7 @@ public class Usuario {
     private Role role;
     private boolean mfaAtivo;
 
-    public Usuario(String nome, String email, Role role, boolean mfaAtivo) {
+    public Usuario(String nome, String email, Role role, Boolean mfaAtivo) {
         this.nome = nome;
         this.email = email;
         this.role = role;

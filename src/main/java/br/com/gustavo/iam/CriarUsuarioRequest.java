@@ -1,15 +1,28 @@
 package br.com.gustavo.iam;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+
 // DTO de entrada usado pra criar um novo usuário.
 // Ele representa os dados que chegam no corpo da requisição POST /usuarios.
 // Usei setters porque o Spring tem que preencher esse objeto com os dados do JSON recebido.
+//As validações ajudam a garantir que a identidade seja cadastrada com os dados mínimos válidos
 
 public class CriarUsuarioRequest {
 
+    @NotBlank(message = "Nome é obrigatório. ")
     private String nome;
+
+    @NotBlank(message = "E-mail é obrigatório. ")
+    @Email(message = "E-mail deve ser válido. ")
     private String email;
+
+    @NotNull(message = "Role é obrigatória. ")
     private Role role;
-    private boolean mfaAtivo;
+    @NotNull(message = "MFA ativo é obrigatório. ")
+    private Boolean mfaAtivo;
 
     public CriarUsuarioRequest() {
     }
@@ -26,7 +39,7 @@ public class CriarUsuarioRequest {
         return role;
     }
 
-    public boolean isMfaAtivo() {
+    public Boolean getMfaAtivo() {
         return mfaAtivo;
     }
 
@@ -42,7 +55,7 @@ public class CriarUsuarioRequest {
         this.role = role;
     }
 
-    public void setMfaAtivo(boolean mfaAtivo) {
+    public void setMfaAtivo(Boolean mfaAtivo) {
         this.mfaAtivo = mfaAtivo;
     }
 }

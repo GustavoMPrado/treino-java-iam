@@ -68,7 +68,7 @@ public class UsuarioService {
                 request.getNome(),
                 request.getEmail(),
                 request.getRole(),
-                request.isMfaAtivo()
+                request.getMfaAtivo()
         );
 
         usuarios.put(usuario.getEmail(), usuario);
