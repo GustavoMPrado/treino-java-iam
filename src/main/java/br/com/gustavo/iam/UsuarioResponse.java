@@ -10,12 +10,14 @@ public class UsuarioResponse {
     private String email;
     private Role role;
     private boolean mfaAtivo;
+    private StatusUsuario status;
 
-    public UsuarioResponse(String nome, String email, Role role, boolean mfaAtivo) {
+    public UsuarioResponse(String nome, String email, Role role, boolean mfaAtivo, StatusUsuario status) {
         this.nome = nome;
         this.email = email;
         this.role = role;
         this.mfaAtivo = mfaAtivo;
+        this.status = status;
     }
 
     public String getNome() {
@@ -32,5 +34,9 @@ public class UsuarioResponse {
 
     public boolean isMfaAtivo() {
         return mfaAtivo;
+    }
+
+    public StatusUsuario getStatus() {
+        return status;
     }
 }

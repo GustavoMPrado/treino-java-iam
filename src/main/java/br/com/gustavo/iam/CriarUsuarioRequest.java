@@ -12,17 +12,21 @@ import jakarta.validation.constraints.NotNull;
 
 public class CriarUsuarioRequest {
 
-    @NotBlank(message = "Nome é obrigatório. ")
+    @NotBlank(message = "Nome é obrigatório.")
     private String nome;
 
-    @NotBlank(message = "E-mail é obrigatório. ")
+    @NotBlank(message = "E-mail é obrigatório.")
     @Email(message = "E-mail deve ser válido. ")
     private String email;
 
-    @NotNull(message = "Role é obrigatória. ")
+    @NotNull(message = "Role é obrigatória.")
     private Role role;
-    @NotNull(message = "MFA ativo é obrigatório. ")
+
+    @NotNull(message = "MFA ativo é obrigatório.")
     private Boolean mfaAtivo;
+
+    @NotNull(message = "Status é obrigatório.")
+    private StatusUsuario status;
 
     public CriarUsuarioRequest() {
     }
@@ -43,6 +47,10 @@ public class CriarUsuarioRequest {
         return mfaAtivo;
     }
 
+    public StatusUsuario getStatus(){
+        return status;
+    }
+
     public void setNome(String nome) {
         this.nome = nome;
     }
@@ -57,5 +65,9 @@ public class CriarUsuarioRequest {
 
     public void setMfaAtivo(Boolean mfaAtivo) {
         this.mfaAtivo = mfaAtivo;
+    }
+
+    public void setStatus(StatusUsuario status) {
+        this.status = status;
     }
 }

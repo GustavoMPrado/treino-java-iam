@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 // Classe responsável por verificar se um usuário pode executar uma determinada ação.
 // Ela consulta o UsuarioService para buscar o usuário pelo e-mail.
-// Depois verifica se o MFA está ativo e se a role do usuário possui a permissão solicitada.
+// Depois verifica status, MFA e se a role do usuário possui a permissão solicitada.
 
 @Service
 public class ControleAcessoService {
@@ -30,6 +30,22 @@ public class ControleAcessoService {
                     "Usuário não encontrado");
         }
 
+        if (usuario.getStatus() == StatusUsuario.BLOQUEADO) {
+            return new VerificarAcessoResponse(
+                    usuario.getNome(),
+                    request.getPermissao(),
+                    false,
+                    "Usuário bloqueado");
+        }
+
+        if (usuario.getStatus() == StatusUsuario.PENDENTE) {
+            return new VerificarAcessoResponse(
+                    usuario.getNome(),
+                    request.getPermissao(),
+                    false,
+                    "Usuário pendente de ativação");
+        }
+
         if (!usuario.isMfaAtivo()) {
             return new VerificarAcessoResponse(
                     usuario.getNome(),
@@ -45,7 +61,7 @@ public class ControleAcessoService {
                     usuario.getNome(),
                     request.getPermissao(),
                     true,
-                    "Usuário possui permissão e MFA ativo");
+                    "Usuário possui permissão, status ativo e MFA ativo");
         }
 
         return new VerificarAcessoResponse(

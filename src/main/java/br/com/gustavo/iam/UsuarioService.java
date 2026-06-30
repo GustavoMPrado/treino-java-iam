@@ -22,9 +22,9 @@ public class UsuarioService {
     // Construtor do service.
     // Quando o Spring cria esse service, ele já cadastra alguns usuários iniciais pra teste.
     public UsuarioService() {
-        cadastrarUsuarioInicial(new Usuario("Gustavo", "gustavo@email.com", Role.ADMIN, true));
-        cadastrarUsuarioInicial(new Usuario("Maria", "maria@email.com", Role.GESTOR, true));
-        cadastrarUsuarioInicial(new Usuario("João", "joao@email.com", Role.USER, false));
+        cadastrarUsuarioInicial(new Usuario("Gustavo", "gustavo@email.com", Role.ADMIN, true, StatusUsuario.ATIVO));
+        cadastrarUsuarioInicial(new Usuario("Maria", "maria@email.com", Role.GESTOR, true, StatusUsuario.ATIVO));
+        cadastrarUsuarioInicial(new Usuario("João", "joao@email.com", Role.USER, false, StatusUsuario.ATIVO));
     }
 
     // Retorna todos os usuários cadastrados já convertidos pra UsuarioResponse.
@@ -68,7 +68,8 @@ public class UsuarioService {
                 request.getNome(),
                 request.getEmail(),
                 request.getRole(),
-                request.getMfaAtivo()
+                request.getMfaAtivo(),
+                request.getStatus()
         );
 
         usuarios.put(usuario.getEmail(), usuario);
@@ -88,7 +89,8 @@ public class UsuarioService {
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getRole(),
-                usuario.isMfaAtivo()
+                usuario.isMfaAtivo(),
+                usuario.getStatus()
         );
     }
 }
