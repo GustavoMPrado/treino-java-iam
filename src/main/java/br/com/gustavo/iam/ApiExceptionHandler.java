@@ -1,5 +1,6 @@
 package br.com.gustavo.iam;
 
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.FieldError;
 import org.springframework.http.HttpStatus;
@@ -42,5 +43,14 @@ public class ApiExceptionHandler {
         ErroResponse erro = new ErroResponse(mensagem);
 
         return ResponseEntity.badRequest().body(erro);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErroResponse> tratarJsonInvalido(HttpMessageNotReadableException exception) {
+        ErroResponse erro = new ErroResponse("Valor inválido no JSON enviado.");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
     }
 }
