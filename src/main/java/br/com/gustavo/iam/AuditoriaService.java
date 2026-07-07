@@ -23,4 +23,16 @@ public class AuditoriaService {
     public Collection<TentativaAcesso> listarTentativas() {
         return tentativas;
     }
+
+    public Collection<TentativaAcesso> listarTentativasPorEmail(String email) {
+        List<TentativaAcesso> tentativasDoUsuario = new ArrayList<>();
+
+        for (TentativaAcesso tentativa : tentativas) {
+            if (tentativa.getEmail().equalsIgnoreCase(email)) {
+                tentativasDoUsuario.add(tentativa);
+            }
+        }
+
+        return tentativasDoUsuario;
+    }
 }
