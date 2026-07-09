@@ -35,4 +35,31 @@ public class AuditoriaService {
 
         return tentativasDoUsuario;
     }
+
+    public Collection<TentativaAcesso> listarTentativasPorResultado(boolean acessoPermitido) {
+        List<TentativaAcesso> tentativasFiltradas = new ArrayList<>();
+
+        for (TentativaAcesso tentativa : tentativas) {
+            if (tentativa.isAcessoPermitido() == acessoPermitido) {
+                tentativasFiltradas.add(tentativa);
+            }
+        }
+
+        return tentativasFiltradas;
+    }
+
+    public Collection<TentativaAcesso> listarTentativasPorEmailEResultado(String email, boolean acessoPermitido) {
+        List<TentativaAcesso> tentativasFiltradas = new ArrayList<>();
+
+        for (TentativaAcesso tentativa : tentativas) {
+            boolean mesmoEmail = tentativa.getEmail().equalsIgnoreCase(email);
+            boolean mesmoResultado = tentativa.isAcessoPermitido() == acessoPermitido;
+
+            if (mesmoEmail && mesmoResultado) {
+                tentativasFiltradas.add(tentativa);
+            }
+        }
+
+        return tentativasFiltradas;
+    }
 }

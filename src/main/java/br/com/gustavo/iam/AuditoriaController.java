@@ -1,7 +1,7 @@
 package br.com.gustavo.iam;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
@@ -19,12 +19,23 @@ public class AuditoriaController {
     }
 
     @GetMapping("/auditoria/acessos")
-    public Collection<TentativaAcesso> listarTentativas() {
+    public Collection<TentativaAcesso> listarTentativas(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Boolean permitido
+    ) {
+        if (email != null && permitido != null) {
+            return auditoriaService.listarTentativasPorEmailEResultado(email, permitido);
+        }
+
+        if (email != null) {
+            return auditoriaService.listarTentativasPorEmail(email);
+        }
+
+        if (permitido != null) {
+            return auditoriaService.listarTentativasPorResultado(permitido);
+        }
+
         return auditoriaService.listarTentativas();
     }
 
-    @GetMapping("/auditoria/acessos/{email}")
-    public Collection<TentativaAcesso> listarTentativasPorEmail(@PathVariable String email) {
-        return auditoriaService.listarTentativasPorEmail(email);
-    }
 }
