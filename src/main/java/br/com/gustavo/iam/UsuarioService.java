@@ -77,6 +77,48 @@ public class UsuarioService {
         return converterParaResponse(usuario);
     }
 
+    // Bloqueia uma identidade existente.
+// Se o usuário não existir, lança exceção para a API responder 404.
+    public UsuarioResponse bloquearUsuario(String email) {
+        Usuario usuario = buscarPorEmail(email);
+
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoException(email);
+        }
+
+        usuario.bloquear();
+
+        return converterParaResponse(usuario);
+    }
+
+    // Ativa uma identidade existente.
+    // Essa ação pode ser usada após validação ou liberação administrativa.
+    public UsuarioResponse ativarUsuario(String email) {
+        Usuario usuario = buscarPorEmail(email);
+
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoException(email);
+        }
+
+        usuario.ativar();
+
+        return converterParaResponse(usuario);
+    }
+
+    // Marca uma identidade como pendente.
+    // Pode representar uma conta aguardando validação ou aprovação.
+    public UsuarioResponse marcarUsuarioComoPendente(String email) {
+        Usuario usuario = buscarPorEmail(email);
+
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoException(email);
+        }
+
+        usuario.marcarComoPendente();
+
+        return converterParaResponse(usuario);
+    }
+
     // Metodo usado apenas para carregar usuários iniciais.
     // Ele evita repetir usuarios.put(...) dentro do construtor.
     private void cadastrarUsuarioInicial(Usuario usuario) {

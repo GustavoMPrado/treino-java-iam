@@ -1,6 +1,8 @@
 package br.com.gustavo.iam;
 
 import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,5 +37,20 @@ public class UsuarioController {
     @PostMapping("/usuarios")
     public UsuarioResponse cadastrar(@Valid @RequestBody CriarUsuarioRequest request) {
         return usuarioService.cadastrar(request);
+    }
+
+    @PatchMapping("/usuarios/{email}/bloquear")
+    public UsuarioResponse bloquearUsuario(@PathVariable String email) {
+        return usuarioService.bloquearUsuario(email);
+    }
+
+    @PatchMapping("/usuarios/{email}/ativar")
+    public UsuarioResponse ativarUsuario(@PathVariable String email) {
+        return usuarioService.ativarUsuario(email);
+    }
+
+    @PatchMapping("/usuarios/{email}/marcar-pendente")
+    public UsuarioResponse marcarUsuarioComoPendente(@PathVariable String email) {
+        return usuarioService.marcarUsuarioComoPendente(email);
     }
 }

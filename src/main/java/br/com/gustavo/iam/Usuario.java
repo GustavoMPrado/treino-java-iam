@@ -40,4 +40,16 @@ public class Usuario {
     public StatusUsuario getStatus() {
         return status;
     }
+
+    public void bloquear() {
+        this.status = StatusUsuario.BLOQUEADO;
+    }
+
+    public void ativar() {
+        this.status = StatusUsuario.ATIVO;
+    }
+
+    public void marcarComoPendente() {
+        this.status = StatusUsuario.PENDENTE;
+    }
 }
