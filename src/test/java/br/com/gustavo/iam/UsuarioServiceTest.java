@@ -107,4 +107,66 @@ class UsuarioServiceTest {
 
         assertNull(usuario);
     }
+
+    @Test
+    void deveBloquearUsuario() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        UsuarioResponse usuario = usuarioService.bloquearUsuario("gustavo@email.com");
+
+        assertEquals("Gustavo", usuario.getNome());
+        assertEquals("gustavo@email.com", usuario.getEmail());
+        assertEquals(StatusUsuario.BLOQUEADO, usuario.getStatus());
+    }
+
+    @Test
+    void deveAtivarUsuario() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        usuarioService.bloquearUsuario("gustavo@email.com");
+
+        UsuarioResponse usuario = usuarioService.ativarUsuario("gustavo@email.com");
+
+        assertEquals("Gustavo", usuario.getNome());
+        assertEquals("gustavo@email.com", usuario.getEmail());
+        assertEquals(StatusUsuario.ATIVO, usuario.getStatus());
+    }
+
+    @Test
+    void deveMarcarUsuarioComoPendente() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        UsuarioResponse usuario = usuarioService.marcarUsuarioComoPendente("gustavo@email.com");
+
+        assertEquals("Gustavo", usuario.getNome());
+        assertEquals("gustavo@email.com", usuario.getEmail());
+        assertEquals(StatusUsuario.PENDENTE, usuario.getStatus());
+    }
+
+    @Test
+    void deveLancarExcecaoAoBloquearUsuarioInexistente() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.bloquearUsuario("naoexiste@email.com"));
+    }
+
+    @Test
+    void deveLancarExcecaoAoAtivarUsuarioInexistente() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.ativarUsuario("naoexiste@email.com"));
+    }
+
+    @Test
+    void deveLancarExcecaoAoMarcarUsuarioInexistenteComoPendente() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.marcarUsuarioComoPendente("naoexiste@email.com"));
+    }
 }
