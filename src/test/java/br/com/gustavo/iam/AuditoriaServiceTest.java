@@ -6,6 +6,8 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// Testes unitários do AuditoriaService.
+// Eles validam o registro e os filtros das tentativas de acesso.
 public class AuditoriaServiceTest {
 
     @Test
