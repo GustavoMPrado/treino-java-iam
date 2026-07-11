@@ -30,6 +30,15 @@ public class ApiExceptionHandler {
                 .body(erro);
     }
 
+    @ExceptionHandler(MfaInvalidoException.class)
+    public ResponseEntity<ErroResponse> tratarMfaInvalido(MfaInvalidoException exception) {
+        ErroResponse erro = new ErroResponse(exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(erro);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErroResponse> tratarErroDeValidacao(MethodArgumentNotValidException exception) {
         FieldError erroDeCampo = exception.getBindingResult().getFieldError();

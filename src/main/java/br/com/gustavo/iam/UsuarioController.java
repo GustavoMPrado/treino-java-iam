@@ -53,4 +53,22 @@ public class UsuarioController {
     public UsuarioResponse marcarUsuarioComoPendente(@PathVariable String email) {
         return usuarioService.marcarUsuarioComoPendente(email);
     }
+
+    @PostMapping("/usuarios/{email}/mfa/iniciar")
+    public IniciarMfaResponse iniciarMfa(@PathVariable String email) {
+        return usuarioService.iniciarMfa(email);
+    }
+
+    @PostMapping("/usuarios/{email}/mfa/confirmar")
+    public UsuarioResponse confirmarMfa(
+            @PathVariable String email,
+            @Valid @RequestBody ConfirmarMfaRequest request
+    ) {
+        return usuarioService.confirmarMfa(email, request);
+    }
+
+    @PatchMapping("/usuarios/{email}/mfa/desativar")
+    public UsuarioResponse desativarMfa(@PathVariable String email) {
+        return usuarioService.desativarMfa(email);
+    }
 }

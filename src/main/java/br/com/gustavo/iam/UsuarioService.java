@@ -78,7 +78,7 @@ public class UsuarioService {
     }
 
     // Bloqueia uma identidade existente.
-// Se o usuário não existir, lança exceção para a API responder 404.
+    // Se o usuário não existir, lança exceção para a API responder 404.
     public UsuarioResponse bloquearUsuario(String email) {
         Usuario usuario = buscarPorEmail(email);
 
@@ -119,9 +119,67 @@ public class UsuarioService {
         return converterParaResponse(usuario);
     }
 
+    // Inicia o fluxo simulado de MFA para uma identidade existente.
+    // O MFA ainda não fica ativo; ele fica pendente até a confirmação do código.
+    public IniciarMfaResponse iniciarMfa(String email) {
+        Usuario usuario = buscarPorEmail(email);
+
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoException(email);
+        }
+
+        String codigoSimulado = gerarCodigoMfaSimulado();
+
+        usuario.iniciarMfa(codigoSimulado);
+
+        return new IniciarMfaResponse(
+                usuario.getEmail(),
+                usuario.isMfaPendente(),
+                usuario.getCodigoMfaSimulado());
+    }
+
+    // Confirma o MFA usando o código informado.
+    // Se o código estiver correto, o MFA passa a ficar ativo.
+    public UsuarioResponse confirmarMfa(String email, ConfirmarMfaRequest request) {
+        Usuario usuario = buscarPorEmail(email);
+
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoException(email);
+        }
+
+        boolean mfaConfirmado = usuario.confirmarMfa(request.getCodigo());
+
+        if (!mfaConfirmado) {
+            throw new MfaInvalidoException();
+        }
+
+        return converterParaResponse(usuario);
+    }
+
+    // Desativa o MFA de uma identidade existente.
+    // Também limpa qualquer fluxo pendente de MFA.
+    public UsuarioResponse desativarMfa(String email) {
+        Usuario usuario = buscarPorEmail(email);
+
+        if (usuario == null) {
+            throw new UsuarioNaoEncontradoException(email);
+        }
+
+        usuario.desativarMfa();
+
+        return converterParaResponse(usuario);
+    }
+
+    // Gera um código fixo apenas para simular o fluxo de MFA.
+    // Futuramente, isso pode ser substituído por TOTP, e-mail, SMS ou provedor externo.
+    private String gerarCodigoMfaSimulado() {
+        return "123456";
+    }
+
     // Metodo usado apenas para carregar usuários iniciais.
     // Ele evita repetir usuarios.put(...) dentro do construtor.
     private void cadastrarUsuarioInicial(Usuario usuario) {
+
         usuarios.put(usuario.getEmail(), usuario);
     }
 
@@ -135,4 +193,5 @@ public class UsuarioService {
                 usuario.getStatus()
         );
     }
+
 }
