@@ -169,4 +169,105 @@ class UsuarioServiceTest {
                 UsuarioNaoEncontradoException.class,
                 () -> usuarioService.marcarUsuarioComoPendente("naoexiste@email.com"));
     }
+
+    @Test
+    void deveIniciarFluxoDeMfa() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        IniciarMfaResponse response = usuarioService.iniciarMfa("joao@email.com");
+
+        assertEquals("joao@email.com", response.getEmail());
+        assertTrue(response.isMfaPendente());
+        assertEquals("123456", response.getCodigoSimulado());
+    }
+
+    @Test
+    void deveConfirmarMfaComCodigoCorreto() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        usuarioService.iniciarMfa("joao@email.com");
+
+        ConfirmarMfaRequest request = new ConfirmarMfaRequest();
+        request.setCodigo("123456");
+
+        UsuarioResponse usuario = usuarioService.confirmarMfa("joao@email.com", request);
+
+        assertEquals("João", usuario.getNome());
+        assertEquals("joao@email.com", usuario.getEmail());
+        assertTrue(usuario.isMfaAtivo());
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoCodigoMfaForInvalido() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        usuarioService.iniciarMfa("joao@email.com");
+
+        ConfirmarMfaRequest request = new ConfirmarMfaRequest();
+        request.setCodigo("000000");
+
+        assertThrows(
+                MfaInvalidoException.class,
+                () -> usuarioService.confirmarMfa("joao@email.com", request));
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoConfirmarMfaSemFluxoIniciado() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        ConfirmarMfaRequest request = new ConfirmarMfaRequest();
+        request.setCodigo("123456");
+
+        assertThrows(
+                MfaInvalidoException.class,
+                () -> usuarioService.confirmarMfa("joao@email.com", request));
+    }
+
+    @Test
+    void deveDesativarMfa() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        usuarioService.iniciarMfa("joao@email.com");
+
+        ConfirmarMfaRequest request = new ConfirmarMfaRequest();
+        request.setCodigo("123456");
+
+        usuarioService.confirmarMfa("joao@email.com", request);
+
+        UsuarioResponse usuario = usuarioService.desativarMfa("joao@email.com");
+
+        assertEquals("João", usuario.getNome());
+        assertEquals("joao@email.com", usuario.getEmail());
+        assertFalse(usuario.isMfaAtivo());
+    }
+
+    @Test
+    void deveLancarExcecaoAoIniciarMfaParaUsuarioInexistente() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.iniciarMfa("naoexiste@email.com"));
+    }
+
+    @Test
+    void deveLancarExcecaoAoConfirmarMfaParaUsuarioInexistente() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        ConfirmarMfaRequest request = new ConfirmarMfaRequest();
+        request.setCodigo("123456");
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.confirmarMfa("naoexiste@email.com", request));
+    }
+
+    @Test
+    void deveLancarExcecaoAoDesativarMfaParaUsuarioInexistente() {
+        UsuarioService usuarioService = new UsuarioService();
+
+        assertThrows(
+                UsuarioNaoEncontradoException.class,
+                () -> usuarioService.desativarMfa("naoexiste@email.com"));
+    }
 }
