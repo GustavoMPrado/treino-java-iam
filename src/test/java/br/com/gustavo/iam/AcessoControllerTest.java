@@ -1,0 +1,210 @@
+package br.com.gustavo.iam;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+// Testes do controller de verificação de acesso.
+// A requisição passa pelo controller, service e regras de IAM.
+@SpringBootTest
+@AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+class AcessoControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    void devePermitirAcessoQuandoUsuarioTemPermissaoStatusAtivoEMfaAtivo() throws Exception {
+        String body = """
+                {
+                  "email": "gustavo@email.com",
+                  "permissao": "DELETAR_USUARIO"
+                }
+                """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.usuario").value("Gustavo"))
+                .andExpect(jsonPath("$.permissao").value("DELETAR_USUARIO"))
+                .andExpect(jsonPath("$.acessoPermitido").value(true))
+                .andExpect(jsonPath("$.motivo").value("Usuário possui permissão, status ativo e MFA ativo"));
+    }
+
+
+    @Test
+    void deveNegarAcessoQuandoUsuarioNaoTemPermissao() throws Exception {
+        String body = """
+            {
+              "email": "maria@email.com",
+              "permissao": "DELETAR_USUARIO"
+            }
+            """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.usuario").value("Maria"))
+                .andExpect(jsonPath("$.permissao").value("DELETAR_USUARIO"))
+                .andExpect(jsonPath("$.acessoPermitido").value(false))
+                .andExpect(jsonPath("$.motivo").value("Usuário não possui a permissão solicitada"));
+    }
+
+    @Test
+    void deveNegarAcessoQuandoMfaNaoEstaAtivo() throws Exception {
+        String body = """
+            {
+              "email": "joao@email.com",
+              "permissao": "VER_PERFIL"
+            }
+            """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.usuario").value("João"))
+                .andExpect(jsonPath("$.permissao").value("VER_PERFIL"))
+                .andExpect(jsonPath("$.acessoPermitido").value(false))
+                .andExpect(jsonPath("$.motivo").value("Usuário não pode acessar. MFA não está ativo"));
+    }
+
+    @Test
+    void deveNegarAcessoQuandoUsuarioNaoExiste() throws Exception {
+        String body = """
+            {
+              "email": "naoexiste@email.com",
+              "permissao": "DELETAR_USUARIO"
+            }
+            """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.permissao").value("DELETAR_USUARIO"))
+                .andExpect(jsonPath("$.acessoPermitido").value(false))
+                .andExpect(jsonPath("$.motivo").value("Usuário não encontrado"));
+    }
+
+    @Test
+    void deveNegarAcessoQuandoUsuarioEstaBloqueado() throws Exception {
+        String criarUsuarioBody = """
+            {
+              "nome": "Bruno",
+              "email": "bruno@email.com",
+              "role": "ADMIN",
+              "mfaAtivo": true,
+              "status": "BLOQUEADO"
+            }
+            """;
+
+        mockMvc.perform(post("/usuarios")
+                        .contentType("application/json")
+                        .content(criarUsuarioBody))
+                .andExpect(status().isOk());
+
+        String verificarAcessoBody = """
+            {
+              "email": "bruno@email.com",
+              "permissao": "DELETAR_USUARIO"
+            }
+            """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(verificarAcessoBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.usuario").value("Bruno"))
+                .andExpect(jsonPath("$.permissao").value("DELETAR_USUARIO"))
+                .andExpect(jsonPath("$.acessoPermitido").value(false))
+                .andExpect(jsonPath("$.motivo").value("Usuário bloqueado"));
+    }
+
+    @Test
+    void deveNegarAcessoQuandoUsuarioEstaPendente() throws Exception {
+        String criarUsuarioBody = """
+            {
+              "nome": "Paula",
+              "email": "paula@email.com",
+              "role": "ADMIN",
+              "mfaAtivo": true,
+              "status": "PENDENTE"
+            }
+            """;
+
+        mockMvc.perform(post("/usuarios")
+                        .contentType("application/json")
+                        .content(criarUsuarioBody))
+                .andExpect(status().isOk());
+
+        String verificarAcessoBody = """
+            {
+              "email": "paula@email.com",
+              "permissao": "DELETAR_USUARIO"
+            }
+            """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(verificarAcessoBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.usuario").value("Paula"))
+                .andExpect(jsonPath("$.permissao").value("DELETAR_USUARIO"))
+                .andExpect(jsonPath("$.acessoPermitido").value(false))
+                .andExpect(jsonPath("$.motivo").value("Usuário pendente de ativação"));
+    }
+
+    @Test
+    void deveRetornar400QuandoEmailForInvalido() throws Exception {
+        String body = """
+            {
+              "email": "email-invalido",
+              "permissao": "DELETAR_USUARIO"
+            }
+            """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deveRetornar400QuandoPermissaoNaoForInformada() throws Exception {
+        String body = """
+            {
+              "email": "gustavo@email.com"
+            }
+            """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deveRetornar400QuandoPermissaoForInvalida() throws Exception {
+        String body = """
+            {
+              "email": "gustavo@email.com",
+              "permissao": "INVALIDA"}""";
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.mensagem").value("Valor inválido no JSON enviado."));
+    }
+}
