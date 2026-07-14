@@ -2,6 +2,16 @@ package br.com.gustavo.iam;
 
 import java.util.Collection;
 
+import br.com.gustavo.iam.acesso.adapter.in.web.dto.VerificarAcessoRequest;
+import br.com.gustavo.iam.acesso.adapter.in.web.dto.VerificarAcessoResponse;
+import br.com.gustavo.iam.acesso.application.ControleAcessoService;
+import br.com.gustavo.iam.auditoria.application.AuditoriaService;
+import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
+import br.com.gustavo.iam.identidade.adapter.in.web.dto.CriarUsuarioRequest;
+import br.com.gustavo.iam.identidade.application.UsuarioService;
+import br.com.gustavo.iam.identidade.domain.Permissao;
+import br.com.gustavo.iam.identidade.domain.Role;
+import br.com.gustavo.iam.identidade.domain.StatusUsuario;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

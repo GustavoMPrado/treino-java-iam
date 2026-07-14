@@ -1,5 +1,16 @@
 package br.com.gustavo.iam;
 
+import br.com.gustavo.iam.identidade.adapter.in.web.dto.ConfirmarMfaRequest;
+import br.com.gustavo.iam.identidade.adapter.in.web.dto.CriarUsuarioRequest;
+import br.com.gustavo.iam.identidade.adapter.in.web.dto.IniciarMfaResponse;
+import br.com.gustavo.iam.identidade.adapter.in.web.dto.UsuarioResponse;
+import br.com.gustavo.iam.identidade.application.UsuarioService;
+import br.com.gustavo.iam.identidade.domain.Role;
+import br.com.gustavo.iam.identidade.domain.StatusUsuario;
+import br.com.gustavo.iam.identidade.domain.Usuario;
+import br.com.gustavo.iam.shared.exception.MfaInvalidoException;
+import br.com.gustavo.iam.shared.exception.UsuarioJaExisteException;
+import br.com.gustavo.iam.shared.exception.UsuarioNaoEncontradoException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;

@@ -1,5 +1,8 @@
 package br.com.gustavo.iam;
 
+import br.com.gustavo.iam.auditoria.application.AuditoriaService;
+import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
+import br.com.gustavo.iam.identidade.domain.Permissao;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
