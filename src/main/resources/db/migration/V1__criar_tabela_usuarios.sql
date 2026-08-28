@@ -1,0 +1,8 @@
+CREATE TABLE usuarios (
+    id UUID PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    role VARCHAR(50) NOT NULL,
+    mfa_ativo BOOLEAN NOT NULL,
+    status VARCHAR(50) NOT NULL
+);
