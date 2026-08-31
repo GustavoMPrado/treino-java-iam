@@ -5,27 +5,44 @@ import br.com.gustavo.iam.identidade.adapter.in.web.dto.CriarUsuarioRequest;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.IniciarMfaResponse;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.UsuarioResponse;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
+import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;
 import br.com.gustavo.iam.identidade.domain.Usuario;
 import br.com.gustavo.iam.shared.exception.MfaInvalidoException;
 import br.com.gustavo.iam.shared.exception.UsuarioJaExisteException;
 import br.com.gustavo.iam.shared.exception.UsuarioNaoEncontradoException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-// Testes unitários do UsuarioService.
-// Eles validam o cadastro, a busca e as regras dos usuários em memória.
+
+// Testes unitários das regras de negócio do UsuarioService.
+// O repository é mockado para manter os testes isolados da infraestrutura.
+
+@ExtendWith(MockitoExtension.class)
 class UsuarioServiceTest {
+
+    // Mock da porta de persistência usada pelo UsuarioService.
+    @Mock
+    private UsuarioRepositoryPort usuarioRepository;
+
+    private UsuarioService usuarioService;
+
+    // Cria uma nova instância do service antes de cada teste.
+    @BeforeEach
+    void setUp() {
+        usuarioService = new UsuarioService(usuarioRepository);
+    }
 
     @Test
     void deveListarUsuariosIniciais() {
-        UsuarioService usuarioService = new UsuarioService();
 
         Collection<UsuarioResponse> usuarios = usuarioService.listarTodos();
 
@@ -34,7 +51,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveBuscarUsuarioExistentePorEmail() {
-        UsuarioService usuarioService = new UsuarioService();
 
         UsuarioResponse usuario = usuarioService.buscarResponsePorEmail("gustavo@email.com");
 
@@ -47,7 +63,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoQuandoUsuarioNaoExiste() {
-        UsuarioService usuarioService = new UsuarioService();
 
         UsuarioNaoEncontradoException exception = assertThrows(
                 UsuarioNaoEncontradoException.class,
@@ -59,7 +74,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveCadastrarNovoUsuario() {
-        UsuarioService usuarioService = new UsuarioService();
 
         CriarUsuarioRequest request = new CriarUsuarioRequest();
         request.setNome("Carlos");
@@ -79,7 +93,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoQuandoEmailJaExiste() {
-        UsuarioService usuarioService = new UsuarioService();
 
         CriarUsuarioRequest request = new CriarUsuarioRequest();
         request.setNome("Outro Gustavo");
@@ -98,7 +111,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveBuscarUsuarioInternoPorEmail() {
-        UsuarioService usuarioService = new UsuarioService();
 
         Usuario usuario = usuarioService.buscarPorEmail("gustavo@email.com");
 
@@ -112,7 +124,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveRetornarNullQuandoBuscarUsuarioInternoNaoEncontrarEmail() {
-        UsuarioService usuarioService = new UsuarioService();
 
         Usuario usuario = usuarioService.buscarPorEmail("naoexiste@email.com");
 
@@ -121,7 +132,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveBloquearUsuario() {
-        UsuarioService usuarioService = new UsuarioService();
 
         UsuarioResponse usuario = usuarioService.bloquearUsuario("gustavo@email.com");
 
@@ -132,7 +142,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveAtivarUsuario() {
-        UsuarioService usuarioService = new UsuarioService();
 
         usuarioService.bloquearUsuario("gustavo@email.com");
 
@@ -145,7 +154,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveMarcarUsuarioComoPendente() {
-        UsuarioService usuarioService = new UsuarioService();
 
         UsuarioResponse usuario = usuarioService.marcarUsuarioComoPendente("gustavo@email.com");
 
@@ -156,7 +164,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoAoBloquearUsuarioInexistente() {
-        UsuarioService usuarioService = new UsuarioService();
 
         assertThrows(
                 UsuarioNaoEncontradoException.class,
@@ -165,7 +172,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoAoAtivarUsuarioInexistente() {
-        UsuarioService usuarioService = new UsuarioService();
 
         assertThrows(
                 UsuarioNaoEncontradoException.class,
@@ -174,7 +180,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoAoMarcarUsuarioInexistenteComoPendente() {
-        UsuarioService usuarioService = new UsuarioService();
 
         assertThrows(
                 UsuarioNaoEncontradoException.class,
@@ -183,7 +188,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveIniciarFluxoDeMfa() {
-        UsuarioService usuarioService = new UsuarioService();
 
         IniciarMfaResponse response = usuarioService.iniciarMfa("joao@email.com");
 
@@ -194,7 +198,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveConfirmarMfaComCodigoCorreto() {
-        UsuarioService usuarioService = new UsuarioService();
 
         usuarioService.iniciarMfa("joao@email.com");
 
@@ -210,7 +213,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoQuandoCodigoMfaForInvalido() {
-        UsuarioService usuarioService = new UsuarioService();
 
         usuarioService.iniciarMfa("joao@email.com");
 
@@ -224,7 +226,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoQuandoConfirmarMfaSemFluxoIniciado() {
-        UsuarioService usuarioService = new UsuarioService();
 
         ConfirmarMfaRequest request = new ConfirmarMfaRequest();
         request.setCodigo("123456");
@@ -236,7 +237,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveDesativarMfa() {
-        UsuarioService usuarioService = new UsuarioService();
 
         usuarioService.iniciarMfa("joao@email.com");
 
@@ -254,7 +254,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoAoIniciarMfaParaUsuarioInexistente() {
-        UsuarioService usuarioService = new UsuarioService();
 
         assertThrows(
                 UsuarioNaoEncontradoException.class,
@@ -263,7 +262,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoAoConfirmarMfaParaUsuarioInexistente() {
-        UsuarioService usuarioService = new UsuarioService();
 
         ConfirmarMfaRequest request = new ConfirmarMfaRequest();
         request.setCodigo("123456");
@@ -275,7 +273,6 @@ class UsuarioServiceTest {
 
     @Test
     void deveLancarExcecaoAoDesativarMfaParaUsuarioInexistente() {
-        UsuarioService usuarioService = new UsuarioService();
 
         assertThrows(
                 UsuarioNaoEncontradoException.class,

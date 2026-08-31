@@ -4,6 +4,7 @@ import br.com.gustavo.iam.identidade.adapter.in.web.dto.ConfirmarMfaRequest;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.CriarUsuarioRequest;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.IniciarMfaResponse;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.UsuarioResponse;
+import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;
 import br.com.gustavo.iam.identidade.domain.Usuario;
@@ -17,27 +18,30 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-// Service responsável por controlar os usuários em memória.
-// Ele simula uma base de dados simples.
-// Futuramente, essa responsabilidade pode ser substituída por um Repository.
+// Service responsável pelas regras de negócio relacionadas aos usuários.
+// A persistência é acessada por meio de uma porta, mantendo a camada de aplicação desacoplada da infraestrutura.
 
 @Service
 public class UsuarioService {
 
-    // Map usado pra guardar os usuários em memória.
+    // Estrutura temporária mantida durante a migração da persistência em memória para o banco.
     // Chave é o e-mail do usuário.
     // O valor é o objeto Usuario.
     private final Map<String, Usuario> usuarios = new HashMap<>();
 
-    // Construtor do service.
-    // Quando o Spring cria esse service, ele já cadastra alguns usuários iniciais pra teste.
-    public UsuarioService() {
+    private final UsuarioRepositoryPort usuarioRepository;
+
+    // Construtor com injeção da porta de persistência.
+    // Os usuários iniciais ainda são carregados em memória durante esta etapa de migração.
+    public UsuarioService(UsuarioRepositoryPort usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+
         cadastrarUsuarioInicial(new Usuario("Gustavo", "gustavo@email.com", Role.ADMIN, true, StatusUsuario.ATIVO));
         cadastrarUsuarioInicial(new Usuario("Maria", "maria@email.com", Role.GESTOR, true, StatusUsuario.ATIVO));
         cadastrarUsuarioInicial(new Usuario("João", "joao@email.com", Role.USER, false, StatusUsuario.ATIVO));
     }
 
-    // Retorna todos os usuários cadastrados já convertidos pra UsuarioResponse.
+    // Retorna todos os usuários cadastrados convertidos para UsuarioResponse.
     public Collection<UsuarioResponse> listarTodos() {
         Collection<UsuarioResponse> responses = new ArrayList<>();
 
@@ -62,7 +66,7 @@ public class UsuarioService {
     }
 
     // Busca um usuário pelo e-mail.
-    // Esse metodo continua retornando Usuario porque o ControleAcessoService precisa do objeto interno.
+    // Retorna o objeto Usuario usado internamente pelo controle de acesso.
     public Usuario buscarPorEmail(String email) {
         return usuarios.get(email);
     }
@@ -186,8 +190,8 @@ public class UsuarioService {
         return "123456";
     }
 
-    // Metodo usado apenas para carregar usuários iniciais.
-    // Ele evita repetir usuarios.put(...) dentro do construtor.
+    // Método temporário usado para carregar os usuários iniciais em memória.
+    // Será removido quando a migração para persistência estiver concluída.
     private void cadastrarUsuarioInicial(Usuario usuario) {
 
         usuarios.put(usuario.getEmail(), usuario);

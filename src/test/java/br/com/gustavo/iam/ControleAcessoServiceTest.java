@@ -1,7 +1,5 @@
 package br.com.gustavo.iam;
 
-import java.util.Collection;
-
 import br.com.gustavo.iam.acesso.adapter.in.web.dto.VerificarAcessoRequest;
 import br.com.gustavo.iam.acesso.adapter.in.web.dto.VerificarAcessoResponse;
 import br.com.gustavo.iam.acesso.application.ControleAcessoService;
@@ -9,18 +7,24 @@ import br.com.gustavo.iam.auditoria.application.AuditoriaService;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.CriarUsuarioRequest;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
+import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.Permissao;
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Collection;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+
+// Testes unitários das regras de controle de acesso.
+// O UsuarioRepositoryPort é mockado porque a persistência ainda não participa destes cenários.
 class ControleAcessoServiceTest {
 
     @Test
     void devePermitirAcessoQuandoUsuarioTemPermissaoStatusAtivoEMfaAtivo() {
-        UsuarioService usuarioService = new UsuarioService();
+        UsuarioService usuarioService = new UsuarioService(mock(UsuarioRepositoryPort.class));
         AuditoriaService auditoriaService = new AuditoriaService();
         ControleAcessoService controleAcessoService = new ControleAcessoService(usuarioService, auditoriaService);
 
@@ -38,7 +42,7 @@ class ControleAcessoServiceTest {
 
     @Test
     void deveNegarAcessoQuandoUsuarioNaoTemPermissao() {
-        UsuarioService usuarioService = new UsuarioService();
+        UsuarioService usuarioService = new UsuarioService(mock(UsuarioRepositoryPort.class));
         AuditoriaService auditoriaService = new AuditoriaService();
         ControleAcessoService controleAcessoService = new ControleAcessoService(usuarioService, auditoriaService);
 
@@ -56,7 +60,7 @@ class ControleAcessoServiceTest {
 
     @Test
     void deveNegarAcessoQuandoMfaNaoEstaAtivo() {
-        UsuarioService usuarioService = new UsuarioService();
+        UsuarioService usuarioService = new UsuarioService(mock(UsuarioRepositoryPort.class));
         AuditoriaService auditoriaService = new AuditoriaService();
         ControleAcessoService controleAcessoService = new ControleAcessoService(usuarioService, auditoriaService);
 
@@ -75,7 +79,7 @@ class ControleAcessoServiceTest {
 
     @Test
     void deveNegarAcessoQuandoUsuarioEstaBloqueado() {
-        UsuarioService usuarioService = new UsuarioService();
+        UsuarioService usuarioService = new UsuarioService(mock(UsuarioRepositoryPort.class));
         AuditoriaService auditoriaService = new AuditoriaService();
         ControleAcessoService controleAcessoService = new ControleAcessoService(usuarioService, auditoriaService);
 
@@ -103,7 +107,7 @@ class ControleAcessoServiceTest {
 
     @Test
     void deveNegarAcessoQuandoUsuarioEstaPendente() {
-        UsuarioService usuarioService = new UsuarioService();
+        UsuarioService usuarioService = new UsuarioService(mock(UsuarioRepositoryPort.class));
         AuditoriaService auditoriaService = new AuditoriaService();
         ControleAcessoService controleAcessoService = new ControleAcessoService(usuarioService, auditoriaService);
 
@@ -131,7 +135,7 @@ class ControleAcessoServiceTest {
 
     @Test
     void deveNegarAcessoQuandoUsuarioNaoExiste() {
-        UsuarioService usuarioService = new UsuarioService();
+        UsuarioService usuarioService = new UsuarioService(mock(UsuarioRepositoryPort.class));
         AuditoriaService auditoriaService = new AuditoriaService();
         ControleAcessoService controleAcessoService = new ControleAcessoService(usuarioService, auditoriaService);
 
@@ -150,7 +154,7 @@ class ControleAcessoServiceTest {
 
     @Test
     void deveRegistrarTentativaNaAuditoriaAoVerificarAcesso() {
-        UsuarioService usuarioService = new UsuarioService();
+        UsuarioService usuarioService = new UsuarioService(mock(UsuarioRepositoryPort.class));
         AuditoriaService auditoriaService = new AuditoriaService();
         ControleAcessoService controleAcessoService = new ControleAcessoService(usuarioService, auditoriaService);
 
