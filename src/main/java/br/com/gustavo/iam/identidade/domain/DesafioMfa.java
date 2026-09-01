@@ -15,7 +15,6 @@ import java.util.UUID;
 
 // Representa um desafio de MFA associado a um usuário.
 // Controla o código protegido, validade, tentativas e estado do desafio.
-
 @Entity
 @Table(name = "desafios_mfa")
 public class DesafioMfa {
@@ -105,6 +104,8 @@ public class DesafioMfa {
     // Registra uma tentativa inválida enquanto o desafio estiver pendente.
     // Ao atingir o limite permitido, o desafio é bloqueado.
     public void registrarTentativaInvalida() {
+        expirar();
+
         if (status != StatusDesafioMfa.PENDENTE) {
             return;
         }
@@ -123,6 +124,16 @@ public class DesafioMfa {
 
         if (status == StatusDesafioMfa.PENDENTE) {
             status = StatusDesafioMfa.CONFIRMADO;
+        }
+    }
+
+    // Substitui um desafio pendente quando um novo desafio é criado.
+    // Desafios expirados ou já finalizados não podem ser substituídos.
+    public void substituir() {
+        expirar();
+
+        if (status == StatusDesafioMfa.PENDENTE) {
+            status = StatusDesafioMfa.SUBSTITUIDO;
         }
     }
 

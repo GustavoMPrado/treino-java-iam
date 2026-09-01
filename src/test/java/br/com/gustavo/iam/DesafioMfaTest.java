@@ -145,6 +145,21 @@ class DesafioMfaTest {
         assertEquals(1, desafio.getTentativas());
     }
 
+    @Test
+    void naoDeveRegistrarTentativaQuandoDesafioEstiverExpirado() {
+        Usuario usuario = criarUsuario();
+
+        DesafioMfa desafio = new DesafioMfa(
+                usuario,
+                "hash-simulado",
+                LocalDateTime.now().minusMinutes(1));
+
+        desafio.registrarTentativaInvalida();
+
+        assertEquals(0, desafio.getTentativas());
+        assertEquals(StatusDesafioMfa.EXPIRADO, desafio.getStatus());
+    }
+
     // Cria um usuário usado apenas nos cenários de teste do desafio MFA.
     private Usuario criarUsuario() {
         return new Usuario(

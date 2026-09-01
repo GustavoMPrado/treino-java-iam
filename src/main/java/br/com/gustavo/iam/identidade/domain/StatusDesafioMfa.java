@@ -13,5 +13,8 @@ public enum StatusDesafioMfa {
     EXPIRADO,
 
     // Limite de tentativas inválidas atingido.
-    BLOQUEADO
+    BLOQUEADO,
+
+    // Desafio invalidado porque um novo desafio foi criado para o mesmo usuário.
+    SUBSTITUIDO
 }
