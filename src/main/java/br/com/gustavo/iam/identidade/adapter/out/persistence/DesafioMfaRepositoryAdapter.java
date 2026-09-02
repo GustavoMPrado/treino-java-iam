@@ -22,7 +22,7 @@ public class DesafioMfaRepositoryAdapter implements DesafioMfaRepositoryPort {
     // Salva ou atualiza um desafio de MFA no banco.
     @Override
     public DesafioMfa salvar(DesafioMfa desafio) {
-        return desafioMfaJpaRepository.save(desafio);
+        return desafioMfaJpaRepository.saveAndFlush(desafio);
     }
 
     // Busca o desafio pendente mais recente do usuário.

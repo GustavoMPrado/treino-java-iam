@@ -1,6 +1,7 @@
 package br.com.gustavo.iam;
 
 import br.com.gustavo.iam.identidade.adapter.in.web.UsuarioController;
+import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,9 @@ class UsuarioControllerTest {
 
     @MockitoBean
     private UsuarioRepositoryPort usuarioRepository;
+
+    @MockitoBean
+    private MfaService mfaService;
 
     @Test
     void deveListarUsuarios() throws Exception {

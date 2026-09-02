@@ -4,6 +4,7 @@ import br.com.gustavo.iam.acesso.adapter.in.web.AcessoController;
 import br.com.gustavo.iam.acesso.application.ControleAcessoService;
 import br.com.gustavo.iam.auditoria.application.AuditoriaService;
 import br.com.gustavo.iam.identidade.adapter.in.web.UsuarioController;
+import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,9 @@ class AcessoControllerTest {
 
     @MockitoBean
     private UsuarioRepositoryPort usuarioRepository;
+
+    @MockitoBean
+    private MfaService mfaService;
 
     @Test
     void devePermitirAcessoQuandoUsuarioTemPermissaoStatusAtivoEMfaAtivo() throws Exception {

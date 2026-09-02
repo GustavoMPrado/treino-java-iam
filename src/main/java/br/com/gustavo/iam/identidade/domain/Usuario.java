@@ -132,6 +132,11 @@ public class Usuario {
         return true;
     }
 
+    // Ativa o MFA após a confirmação de um desafio válido.
+    public void ativarMfa() {
+        this.mfaAtivo = true;
+    }
+
     public void desativarMfa() {
         this.mfaAtivo = false;
         this.mfaPendente = false;
