@@ -1,26 +1,40 @@
 package br.com.gustavo.iam;
 
+import br.com.gustavo.iam.acesso.adapter.in.web.AcessoController;
+import br.com.gustavo.iam.acesso.application.ControleAcessoService;
+import br.com.gustavo.iam.auditoria.application.AuditoriaService;
+import br.com.gustavo.iam.identidade.adapter.in.web.UsuarioController;
+import br.com.gustavo.iam.identidade.application.UsuarioService;
+import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Testes do controller de verificação de acesso.
-// A requisição passa pelo controller, service e regras de IAM.
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+// A requisição passa pelo controller e pelas regras reais de acesso.
+@WebMvcTest({
+        AcessoController.class,
+        UsuarioController.class
+})
+@Import({
+        ControleAcessoService.class,
+        UsuarioService.class,
+        AuditoriaService.class
+})
 class AcessoControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private UsuarioRepositoryPort usuarioRepository;
 
     @Test
     void devePermitirAcessoQuandoUsuarioTemPermissaoStatusAtivoEMfaAtivo() throws Exception {
@@ -41,15 +55,14 @@ class AcessoControllerTest {
                 .andExpect(jsonPath("$.motivo").value("Usuário possui permissão, status ativo e MFA ativo"));
     }
 
-
     @Test
     void deveNegarAcessoQuandoUsuarioNaoTemPermissao() throws Exception {
         String body = """
-            {
-              "email": "maria@email.com",
-              "permissao": "DELETAR_USUARIO"
-            }
-            """;
+                {
+                  "email": "maria@email.com",
+                  "permissao": "DELETAR_USUARIO"
+                }
+                """;
 
         mockMvc.perform(post("/acessos/verificar")
                         .contentType("application/json")
@@ -64,11 +77,11 @@ class AcessoControllerTest {
     @Test
     void deveNegarAcessoQuandoMfaNaoEstaAtivo() throws Exception {
         String body = """
-            {
-              "email": "joao@email.com",
-              "permissao": "VER_PERFIL"
-            }
-            """;
+                {
+                  "email": "joao@email.com",
+                  "permissao": "VER_PERFIL"
+                }
+                """;
 
         mockMvc.perform(post("/acessos/verificar")
                         .contentType("application/json")
@@ -83,11 +96,11 @@ class AcessoControllerTest {
     @Test
     void deveNegarAcessoQuandoUsuarioNaoExiste() throws Exception {
         String body = """
-            {
-              "email": "naoexiste@email.com",
-              "permissao": "DELETAR_USUARIO"
-            }
-            """;
+                {
+                  "email": "naoexiste@email.com",
+                  "permissao": "DELETAR_USUARIO"
+                }
+                """;
 
         mockMvc.perform(post("/acessos/verificar")
                         .contentType("application/json")
@@ -101,14 +114,14 @@ class AcessoControllerTest {
     @Test
     void deveNegarAcessoQuandoUsuarioEstaBloqueado() throws Exception {
         String criarUsuarioBody = """
-            {
-              "nome": "Bruno",
-              "email": "bruno@email.com",
-              "role": "ADMIN",
-              "mfaAtivo": true,
-              "status": "BLOQUEADO"
-            }
-            """;
+                {
+                  "nome": "Bruno",
+                  "email": "bruno@email.com",
+                  "role": "ADMIN",
+                  "mfaAtivo": true,
+                  "status": "BLOQUEADO"
+                }
+                """;
 
         mockMvc.perform(post("/usuarios")
                         .contentType("application/json")
@@ -116,11 +129,11 @@ class AcessoControllerTest {
                 .andExpect(status().isOk());
 
         String verificarAcessoBody = """
-            {
-              "email": "bruno@email.com",
-              "permissao": "DELETAR_USUARIO"
-            }
-            """;
+                {
+                  "email": "bruno@email.com",
+                  "permissao": "DELETAR_USUARIO"
+                }
+                """;
 
         mockMvc.perform(post("/acessos/verificar")
                         .contentType("application/json")
@@ -135,14 +148,14 @@ class AcessoControllerTest {
     @Test
     void deveNegarAcessoQuandoUsuarioEstaPendente() throws Exception {
         String criarUsuarioBody = """
-            {
-              "nome": "Paula",
-              "email": "paula@email.com",
-              "role": "ADMIN",
-              "mfaAtivo": true,
-              "status": "PENDENTE"
-            }
-            """;
+                {
+                  "nome": "Paula",
+                  "email": "paula@email.com",
+                  "role": "ADMIN",
+                  "mfaAtivo": true,
+                  "status": "PENDENTE"
+                }
+                """;
 
         mockMvc.perform(post("/usuarios")
                         .contentType("application/json")
@@ -150,11 +163,11 @@ class AcessoControllerTest {
                 .andExpect(status().isOk());
 
         String verificarAcessoBody = """
-            {
-              "email": "paula@email.com",
-              "permissao": "DELETAR_USUARIO"
-            }
-            """;
+                {
+                  "email": "paula@email.com",
+                  "permissao": "DELETAR_USUARIO"
+                }
+                """;
 
         mockMvc.perform(post("/acessos/verificar")
                         .contentType("application/json")
@@ -169,11 +182,11 @@ class AcessoControllerTest {
     @Test
     void deveRetornar400QuandoEmailForInvalido() throws Exception {
         String body = """
-            {
-              "email": "email-invalido",
-              "permissao": "DELETAR_USUARIO"
-            }
-            """;
+                {
+                  "email": "email-invalido",
+                  "permissao": "DELETAR_USUARIO"
+                }
+                """;
 
         mockMvc.perform(post("/acessos/verificar")
                         .contentType("application/json")
@@ -184,10 +197,10 @@ class AcessoControllerTest {
     @Test
     void deveRetornar400QuandoPermissaoNaoForInformada() throws Exception {
         String body = """
-            {
-              "email": "gustavo@email.com"
-            }
-            """;
+                {
+                  "email": "gustavo@email.com"
+                }
+                """;
 
         mockMvc.perform(post("/acessos/verificar")
                         .contentType("application/json")
@@ -198,9 +211,9 @@ class AcessoControllerTest {
     @Test
     void deveRetornar400QuandoPermissaoForInvalida() throws Exception {
         String body = """
-            {
-              "email": "gustavo@email.com",
-              "permissao": "INVALIDA"}""";
+                {
+                  "email": "gustavo@email.com",
+                  "permissao": "INVALIDA"}""";
 
         mockMvc.perform(post("/acessos/verificar")
                         .contentType("application/json")

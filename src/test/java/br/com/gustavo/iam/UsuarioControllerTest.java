@@ -1,11 +1,14 @@
 package br.com.gustavo.iam;
 
+import br.com.gustavo.iam.identidade.adapter.in.web.UsuarioController;
+import br.com.gustavo.iam.identidade.application.UsuarioService;
+import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -14,16 +17,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Testes de controller com contexto completo do Spring.
-// Cada teste reinicia o contexto para evitar interferência dos dados em memória.
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+// Testes da camada web de usuários.
+// O banco não é carregado neste teste.
+@WebMvcTest(UsuarioController.class)
+@Import(UsuarioService.class)
 class UsuarioControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private UsuarioRepositoryPort usuarioRepository;
 
     @Test
     void deveListarUsuarios() throws Exception {
@@ -47,20 +51,22 @@ class UsuarioControllerTest {
     void deveRetornar404QuandoUsuarioNaoExiste() throws Exception {
         mockMvc.perform(get("/usuarios/naoexiste@email.com"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.mensagem").value("Usuário não encontrado com o e-mail: naoexiste@email.com"));
+                .andExpect(jsonPath("$.mensagem")
+                        .value("Usuário não encontrado com o e-mail: naoexiste@email.com"));
     }
 
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void deveCadastrarUsuario() throws Exception {
         String body = """
-            {
-              "nome": "Carlos",
-              "email": "carlos@email.com",
-              "role": "USER",
-              "mfaAtivo": true,
-              "status": "ATIVO"
-            }
-            """;
+                {
+                  "nome": "Carlos",
+                  "email": "carlos@email.com",
+                  "role": "USER",
+                  "mfaAtivo": true,
+                  "status": "ATIVO"
+                }
+                """;
 
         mockMvc.perform(post("/usuarios")
                         .contentType("application/json")
@@ -76,33 +82,34 @@ class UsuarioControllerTest {
     @Test
     void deveRetornar409QuandoUsuarioJaExiste() throws Exception {
         String body = """
-            {
-              "nome": "Outro Gustavo",
-              "email": "gustavo@email.com",
-              "role": "USER",
-              "mfaAtivo": true,
-              "status": "ATIVO"
-            }
-            """;
+                {
+                  "nome": "Outro Gustavo",
+                  "email": "gustavo@email.com",
+                  "role": "USER",
+                  "mfaAtivo": true,
+                  "status": "ATIVO"
+                }
+                """;
 
         mockMvc.perform(post("/usuarios")
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.mensagem").value("Já existe um usuário cadastrado com o e-mail: gustavo@email.com"));
+                .andExpect(jsonPath("$.mensagem")
+                        .value("Já existe um usuário cadastrado com o e-mail: gustavo@email.com"));
     }
 
     @Test
     void deveRetornar400QuandoNomeEstiverVazio() throws Exception {
         String body = """
-            {
-              "nome": "",
-              "email": "carlos@email.com",
-              "role": "USER",
-              "mfaAtivo": true,
-              "status": "ATIVO"
-            }
-            """;
+                {
+                  "nome": "",
+                  "email": "carlos@email.com",
+                  "role": "USER",
+                  "mfaAtivo": true,
+                  "status": "ATIVO"
+                }
+                """;
 
         mockMvc.perform(post("/usuarios")
                         .contentType("application/json")
@@ -113,14 +120,14 @@ class UsuarioControllerTest {
     @Test
     void deveRetornar400QuandoEmailForInvalido() throws Exception {
         String body = """
-            {
-              "nome": "Carlos",
-              "email": "email-invalido",
-              "role": "USER",
-              "mfaAtivo": true,
-              "status": "ATIVO"
-            }
-            """;
+                {
+                  "nome": "Carlos",
+                  "email": "email-invalido",
+                  "role": "USER",
+                  "mfaAtivo": true,
+                  "status": "ATIVO"
+                }
+                """;
 
         mockMvc.perform(post("/usuarios")
                         .contentType("application/json")
@@ -131,14 +138,14 @@ class UsuarioControllerTest {
     @Test
     void deveRetornar400QuandoRoleForInvalida() throws Exception {
         String body = """
-        {
-          "nome": "Carlos",
-          "email": "carlos@email.com",
-          "role": "INVALIDA",
-          "mfaAtivo": true,
-          "status": "ATIVO"
-        }
-        """;
+                {
+                  "nome": "Carlos",
+                  "email": "carlos@email.com",
+                  "role": "INVALIDA",
+                  "mfaAtivo": true,
+                  "status": "ATIVO"
+                }
+                """;
 
         mockMvc.perform(post("/usuarios")
                         .contentType("application/json")
@@ -146,5 +153,4 @@ class UsuarioControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensagem").value("Valor inválido no JSON enviado."));
     }
-
 }
