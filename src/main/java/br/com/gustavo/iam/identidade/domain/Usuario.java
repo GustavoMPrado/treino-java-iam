@@ -8,7 +8,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
+
 
 // Entidade representa um usuário do sistema.
 // A role define as permissões, enquanto o status e o MFA participam das decisões de acesso.
@@ -33,12 +33,6 @@ public class Usuario {
 
     @Column(name = "mfa_ativo", nullable = false)
     private boolean mfaAtivo;
-
-    @Transient
-    private boolean mfaPendente;
-
-    @Transient
-    private String codigoMfaSimulado;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -80,16 +74,6 @@ public class Usuario {
         return mfaAtivo;
     }
 
-    public boolean isMfaPendente() {
-
-        return mfaPendente;
-    }
-
-    public String getCodigoMfaSimulado() {
-
-        return codigoMfaSimulado;
-    }
-
     public StatusUsuario getStatus() {
 
         return status;
@@ -111,27 +95,6 @@ public class Usuario {
     }
 
 
-    public void iniciarMfa(String codigoMfaSimulado) {
-        this.mfaPendente = true;
-        this.codigoMfaSimulado = codigoMfaSimulado;
-    }
-
-    public boolean confirmarMfa(String codigoInformado) {
-        if (!mfaPendente) {
-            return false;
-        }
-
-        if (!codigoMfaSimulado.equals(codigoInformado)) {
-            return false;
-        }
-
-        this.mfaAtivo = true;
-        this.mfaPendente = false;
-        this.codigoMfaSimulado = null;
-
-        return true;
-    }
-
     // Ativa o MFA após a confirmação de um desafio válido.
     public void ativarMfa() {
         this.mfaAtivo = true;
@@ -139,7 +102,5 @@ public class Usuario {
 
     public void desativarMfa() {
         this.mfaAtivo = false;
-        this.mfaPendente = false;
-        this.codigoMfaSimulado = null;
     }
 }
