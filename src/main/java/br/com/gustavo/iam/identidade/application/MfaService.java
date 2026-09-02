@@ -63,18 +63,20 @@ public class MfaService {
         DesafioMfa novoDesafio = new DesafioMfa(
                 usuario,
                 codigoHash,
-                LocalDateTime.now().plusMinutes(5));
+                LocalDateTime.now().plusMinutes(5)
+        );
 
         desafioMfaRepository.salvar(novoDesafio);
 
         return new IniciarMfaResponse(
                 usuario.getEmail(),
                 true,
-                codigo);
+                codigo
+        );
     }
 
     // Confirma um desafio de MFA pendente.
-    @Transactional
+    @Transactional(noRollbackFor = MfaInvalidoException.class)
     public UsuarioResponse confirmarMfa(String email, ConfirmarMfaRequest request) {
         Usuario usuario = usuarioService.buscarPorEmail(email);
 
@@ -93,7 +95,8 @@ public class MfaService {
 
         boolean codigoValido = mfaHashService.corresponde(
                 request.getCodigo(),
-                desafio.getCodigoHash());
+                desafio.getCodigoHash()
+        );
 
         desafio.processarTentativa(codigoValido);
 
@@ -110,7 +113,8 @@ public class MfaService {
                 usuario.getEmail(),
                 usuario.getRole(),
                 usuario.isMfaAtivo(),
-                usuario.getStatus());
+                usuario.getStatus()
+        );
     }
 
     // Gera um código aleatório de seis dígitos.
