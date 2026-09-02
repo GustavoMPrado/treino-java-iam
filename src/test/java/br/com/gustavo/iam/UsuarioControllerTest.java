@@ -4,15 +4,23 @@ import br.com.gustavo.iam.identidade.adapter.in.web.UsuarioController;
 import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
+import br.com.gustavo.iam.identidade.domain.Role;
+import br.com.gustavo.iam.identidade.domain.StatusUsuario;
+import br.com.gustavo.iam.identidade.domain.Usuario;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,6 +40,51 @@ class UsuarioControllerTest {
 
     @MockitoBean
     private MfaService mfaService;
+
+    @BeforeEach
+    void setUp() {
+        Usuario gustavo = new Usuario(
+                "Gustavo",
+                "gustavo@email.com",
+                Role.ADMIN,
+                true,
+                StatusUsuario.ATIVO
+        );
+
+        Usuario maria = new Usuario(
+                "Maria",
+                "maria@email.com",
+                Role.GESTOR,
+                true,
+                StatusUsuario.ATIVO
+        );
+
+        Usuario joao = new Usuario(
+                "João",
+                "joao@email.com",
+                Role.USER,
+                false,
+                StatusUsuario.ATIVO
+        );
+
+        when(usuarioRepository.listarTodos())
+                .thenReturn(List.of(gustavo, maria, joao));
+
+        when(usuarioRepository.buscarPorEmail("gustavo@email.com"))
+                .thenReturn(Optional.of(gustavo));
+
+        when(usuarioRepository.buscarPorEmail("naoexiste@email.com"))
+                .thenReturn(Optional.empty());
+
+        when(usuarioRepository.existePorEmail("gustavo@email.com"))
+                .thenReturn(true);
+
+        when(usuarioRepository.existePorEmail("carlos@email.com"))
+                .thenReturn(false);
+
+        when(usuarioRepository.salvar(any(Usuario.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+    }
 
     @Test
     void deveListarUsuarios() throws Exception {
@@ -60,7 +113,6 @@ class UsuarioControllerTest {
     }
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     void deveCadastrarUsuario() throws Exception {
         String body = """
                 {
