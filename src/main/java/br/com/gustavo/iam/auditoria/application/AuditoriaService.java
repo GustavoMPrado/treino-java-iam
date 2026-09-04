@@ -1,67 +1,57 @@
 package br.com.gustavo.iam.auditoria.application;
 
+import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
 import br.com.gustavo.iam.identidade.domain.Permissao;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-//Service responsável por registrar e listar tentativas de acesso.
-//Por enquanto, os registros ficam em memória.
-
+// Service responsável por registrar e consultar tentativas de acesso.
 @Service
 public class AuditoriaService {
 
-    private final List<TentativaAcesso> tentativas = new ArrayList<>();
+    private final AuditoriaRepositoryPort auditoriaRepository;
 
-    public void registrarTentativa(String email, Permissao permissao, boolean acessoPermitido, String motivo) {
-        TentativaAcesso tentativa = new TentativaAcesso(email, permissao, acessoPermitido, motivo, LocalDateTime.now());
-        tentativas.add(tentativa);
+    public AuditoriaService(AuditoriaRepositoryPort auditoriaRepository) {
+        this.auditoriaRepository = auditoriaRepository;
+    }
+
+    public void registrarTentativa(
+            String email,
+            Permissao permissao,
+            boolean acessoPermitido,
+            String motivo
+    ) {
+        TentativaAcesso tentativa = new TentativaAcesso(
+                email,
+                permissao,
+                acessoPermitido,
+                motivo,
+                LocalDateTime.now());
+
+        auditoriaRepository.salvar(tentativa);
     }
 
     public Collection<TentativaAcesso> listarTentativas() {
-        return tentativas;
+        return auditoriaRepository.listarTodas();
     }
 
     public Collection<TentativaAcesso> listarTentativasPorEmail(String email) {
-        List<TentativaAcesso> tentativasDoUsuario = new ArrayList<>();
-
-        for (TentativaAcesso tentativa : tentativas) {
-            if (tentativa.getEmail().equalsIgnoreCase(email)) {
-                tentativasDoUsuario.add(tentativa);
-            }
-        }
-
-        return tentativasDoUsuario;
+        return auditoriaRepository.buscarPorEmail(email);
     }
 
     public Collection<TentativaAcesso> listarTentativasPorResultado(boolean acessoPermitido) {
-        List<TentativaAcesso> tentativasFiltradas = new ArrayList<>();
-
-        for (TentativaAcesso tentativa : tentativas) {
-            if (tentativa.isAcessoPermitido() == acessoPermitido) {
-                tentativasFiltradas.add(tentativa);
-            }
-        }
-
-        return tentativasFiltradas;
+        return auditoriaRepository.buscarPorResultado(acessoPermitido);
     }
 
-    public Collection<TentativaAcesso> listarTentativasPorEmailEResultado(String email, boolean acessoPermitido) {
-        List<TentativaAcesso> tentativasFiltradas = new ArrayList<>();
-
-        for (TentativaAcesso tentativa : tentativas) {
-            boolean mesmoEmail = tentativa.getEmail().equalsIgnoreCase(email);
-            boolean mesmoResultado = tentativa.isAcessoPermitido() == acessoPermitido;
-
-            if (mesmoEmail && mesmoResultado) {
-                tentativasFiltradas.add(tentativa);
-            }
-        }
-
-        return tentativasFiltradas;
+    public Collection<TentativaAcesso> listarTentativasPorEmailEResultado(
+            String email,
+            boolean acessoPermitido
+    ) {
+        return auditoriaRepository.buscarPorEmailEResultado(
+                email,
+                acessoPermitido);
     }
 }

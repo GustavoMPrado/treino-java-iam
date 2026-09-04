@@ -1,5 +1,6 @@
 package br.com.gustavo.iam;
 
+import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.acesso.adapter.in.web.AcessoController;
 import br.com.gustavo.iam.acesso.application.ControleAcessoService;
 import br.com.gustavo.iam.auditoria.application.AuditoriaService;
@@ -39,6 +40,9 @@ class AcessoControllerTest {
     @MockitoBean
     private UsuarioRepositoryPort usuarioRepository;
 
+    @MockitoBean
+    private AuditoriaRepositoryPort auditoriaRepository;
+
     @BeforeEach
     void setUp() {
         Usuario gustavo = new Usuario(
@@ -46,40 +50,35 @@ class AcessoControllerTest {
                 "gustavo@email.com",
                 Role.ADMIN,
                 true,
-                StatusUsuario.ATIVO
-        );
+                StatusUsuario.ATIVO);
 
         Usuario maria = new Usuario(
                 "Maria",
                 "maria@email.com",
                 Role.GESTOR,
                 true,
-                StatusUsuario.ATIVO
-        );
+                StatusUsuario.ATIVO);
 
         Usuario joao = new Usuario(
                 "João",
                 "joao@email.com",
                 Role.USER,
                 false,
-                StatusUsuario.ATIVO
-        );
+                StatusUsuario.ATIVO);
 
         Usuario bruno = new Usuario(
                 "Bruno",
                 "bruno@email.com",
                 Role.ADMIN,
                 true,
-                StatusUsuario.BLOQUEADO
-        );
+                StatusUsuario.BLOQUEADO);
 
         Usuario paula = new Usuario(
                 "Paula",
                 "paula@email.com",
                 Role.ADMIN,
                 true,
-                StatusUsuario.PENDENTE
-        );
+                StatusUsuario.PENDENTE);
 
         when(usuarioRepository.buscarPorEmail("gustavo@email.com"))
                 .thenReturn(Optional.of(gustavo));

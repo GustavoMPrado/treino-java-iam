@@ -4,6 +4,7 @@ import br.com.gustavo.iam.acesso.adapter.in.web.dto.VerificarAcessoRequest;
 import br.com.gustavo.iam.acesso.adapter.in.web.dto.VerificarAcessoResponse;
 import br.com.gustavo.iam.acesso.application.ControleAcessoService;
 import br.com.gustavo.iam.auditoria.application.AuditoriaService;
+import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
@@ -17,10 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collection;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 // Testes unitários das regras de controle de acesso.
@@ -31,6 +33,9 @@ class ControleAcessoServiceTest {
     @Mock
     private UsuarioRepositoryPort usuarioRepository;
 
+    @Mock
+    private AuditoriaRepositoryPort auditoriaRepository;
+
     private UsuarioService usuarioService;
     private AuditoriaService auditoriaService;
     private ControleAcessoService controleAcessoService;
@@ -38,11 +43,10 @@ class ControleAcessoServiceTest {
     @BeforeEach
     void setUp() {
         usuarioService = new UsuarioService(usuarioRepository);
-        auditoriaService = new AuditoriaService();
+        auditoriaService = new AuditoriaService(auditoriaRepository);
         controleAcessoService = new ControleAcessoService(
                 usuarioService,
-                auditoriaService
-        );
+                auditoriaService);
     }
 
     @Test
@@ -52,16 +56,14 @@ class ControleAcessoServiceTest {
                 "gustavo@email.com",
                 Role.ADMIN,
                 true,
-                StatusUsuario.ATIVO
-        );
+                StatusUsuario.ATIVO);
 
         when(usuarioRepository.buscarPorEmail("gustavo@email.com"))
                 .thenReturn(Optional.of(gustavo));
 
         VerificarAcessoRequest request = new VerificarAcessoRequest(
                 "gustavo@email.com",
-                Permissao.DELETAR_USUARIO
-        );
+                Permissao.DELETAR_USUARIO);
 
         VerificarAcessoResponse response =
                 controleAcessoService.verificarAcesso(request);
@@ -71,8 +73,7 @@ class ControleAcessoServiceTest {
         assertEquals(Permissao.DELETAR_USUARIO, response.getPermissao());
         assertEquals(
                 "Usuário possui permissão, status ativo e MFA ativo",
-                response.getMotivo()
-        );
+                response.getMotivo());
     }
 
     @Test
@@ -82,16 +83,14 @@ class ControleAcessoServiceTest {
                 "maria@email.com",
                 Role.GESTOR,
                 true,
-                StatusUsuario.ATIVO
-        );
+                StatusUsuario.ATIVO);
 
         when(usuarioRepository.buscarPorEmail("maria@email.com"))
                 .thenReturn(Optional.of(maria));
 
         VerificarAcessoRequest request = new VerificarAcessoRequest(
                 "maria@email.com",
-                Permissao.DELETAR_USUARIO
-        );
+                Permissao.DELETAR_USUARIO);
 
         VerificarAcessoResponse response =
                 controleAcessoService.verificarAcesso(request);
@@ -101,8 +100,7 @@ class ControleAcessoServiceTest {
         assertEquals(Permissao.DELETAR_USUARIO, response.getPermissao());
         assertEquals(
                 "Usuário não possui a permissão solicitada",
-                response.getMotivo()
-        );
+                response.getMotivo());
     }
 
     @Test
@@ -112,16 +110,14 @@ class ControleAcessoServiceTest {
                 "joao@email.com",
                 Role.USER,
                 false,
-                StatusUsuario.ATIVO
-        );
+                StatusUsuario.ATIVO);
 
         when(usuarioRepository.buscarPorEmail("joao@email.com"))
                 .thenReturn(Optional.of(joao));
 
         VerificarAcessoRequest request = new VerificarAcessoRequest(
                 "joao@email.com",
-                Permissao.VER_PERFIL
-        );
+                Permissao.VER_PERFIL);
 
         VerificarAcessoResponse response =
                 controleAcessoService.verificarAcesso(request);
@@ -131,8 +127,7 @@ class ControleAcessoServiceTest {
         assertEquals(Permissao.VER_PERFIL, response.getPermissao());
         assertEquals(
                 "Usuário não pode acessar. MFA não está ativo",
-                response.getMotivo()
-        );
+                response.getMotivo());
     }
 
     @Test
@@ -142,16 +137,14 @@ class ControleAcessoServiceTest {
                 "bruno@email.com",
                 Role.ADMIN,
                 true,
-                StatusUsuario.BLOQUEADO
-        );
+                StatusUsuario.BLOQUEADO);
 
         when(usuarioRepository.buscarPorEmail("bruno@email.com"))
                 .thenReturn(Optional.of(bruno));
 
         VerificarAcessoRequest request = new VerificarAcessoRequest(
                 "bruno@email.com",
-                Permissao.DELETAR_USUARIO
-        );
+                Permissao.DELETAR_USUARIO);
 
         VerificarAcessoResponse response =
                 controleAcessoService.verificarAcesso(request);
@@ -169,16 +162,14 @@ class ControleAcessoServiceTest {
                 "paula@email.com",
                 Role.ADMIN,
                 true,
-                StatusUsuario.PENDENTE
-        );
+                StatusUsuario.PENDENTE);
 
         when(usuarioRepository.buscarPorEmail("paula@email.com"))
                 .thenReturn(Optional.of(paula));
 
         VerificarAcessoRequest request = new VerificarAcessoRequest(
                 "paula@email.com",
-                Permissao.DELETAR_USUARIO
-        );
+                Permissao.DELETAR_USUARIO);
 
         VerificarAcessoResponse response =
                 controleAcessoService.verificarAcesso(request);
@@ -188,8 +179,7 @@ class ControleAcessoServiceTest {
         assertEquals(Permissao.DELETAR_USUARIO, response.getPermissao());
         assertEquals(
                 "Usuário pendente de ativação",
-                response.getMotivo()
-        );
+                response.getMotivo());
     }
 
     @Test
@@ -199,8 +189,7 @@ class ControleAcessoServiceTest {
 
         VerificarAcessoRequest request = new VerificarAcessoRequest(
                 "naoexiste@email.com",
-                Permissao.DELETAR_USUARIO
-        );
+                Permissao.DELETAR_USUARIO);
 
         VerificarAcessoResponse response =
                 controleAcessoService.verificarAcesso(request);
@@ -218,22 +207,17 @@ class ControleAcessoServiceTest {
                 "gustavo@email.com",
                 Role.ADMIN,
                 true,
-                StatusUsuario.ATIVO
-        );
+                StatusUsuario.ATIVO);
 
         when(usuarioRepository.buscarPorEmail("gustavo@email.com"))
                 .thenReturn(Optional.of(gustavo));
 
         VerificarAcessoRequest request = new VerificarAcessoRequest(
                 "gustavo@email.com",
-                Permissao.DELETAR_USUARIO
-        );
+                Permissao.DELETAR_USUARIO);
 
         controleAcessoService.verificarAcesso(request);
 
-        Collection<TentativaAcesso> tentativas =
-                auditoriaService.listarTentativas();
-
-        assertEquals(1, tentativas.size());
+        verify(auditoriaRepository).salvar(any(TentativaAcesso.class));
     }
 }
