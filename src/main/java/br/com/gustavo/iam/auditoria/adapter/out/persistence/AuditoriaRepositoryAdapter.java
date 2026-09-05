@@ -2,9 +2,9 @@ package br.com.gustavo.iam.auditoria.adapter.out.persistence;
 
 import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.util.Collection;
 
 // Adapter responsável por implementar a porta de persistência da auditoria.
 @Repository
@@ -22,26 +22,37 @@ public class AuditoriaRepositoryAdapter implements AuditoriaRepositoryPort {
     }
 
     @Override
-    public Collection<TentativaAcesso> listarTodas() {
-        return auditoriaJpaRepository.findAll();
+    public Page<TentativaAcesso> listarTodas(Pageable pageable) {
+        return auditoriaJpaRepository.findAll(pageable);
     }
 
     @Override
-    public Collection<TentativaAcesso> buscarPorEmail(String email) {
-        return auditoriaJpaRepository.findByEmailIgnoreCase(email);
-    }
-
-    @Override
-    public Collection<TentativaAcesso> buscarPorResultado(boolean acessoPermitido) {
-        return auditoriaJpaRepository.findByAcessoPermitido(acessoPermitido);
-    }
-
-    @Override
-    public Collection<TentativaAcesso> buscarPorEmailEResultado(
+    public Page<TentativaAcesso> buscarPorEmail(
             String email,
-            boolean acessoPermitido
-    ) {
+            Pageable pageable) {
+        return auditoriaJpaRepository.findByEmailIgnoreCase(
+                email,
+                pageable);
+    }
+
+    @Override
+    public Page<TentativaAcesso> buscarPorResultado(
+            boolean acessoPermitido,
+            Pageable pageable) {
+        return auditoriaJpaRepository.findByAcessoPermitido(
+                acessoPermitido,
+                pageable);
+    }
+
+    @Override
+    public Page<TentativaAcesso> buscarPorEmailEResultado(
+            String email,
+            boolean acessoPermitido,
+            Pageable pageable) {
         return auditoriaJpaRepository
-                .findByEmailIgnoreCaseAndAcessoPermitido(email, acessoPermitido);
+                .findByEmailIgnoreCaseAndAcessoPermitido(
+                        email,
+                        acessoPermitido,
+                        pageable);
     }
 }

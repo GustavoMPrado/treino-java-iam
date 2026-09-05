@@ -9,9 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,6 +50,8 @@ class AuditoriaServiceTest {
 
     @Test
     void deveListarTentativasPorEmail() {
+        Pageable pageable = PageRequest.of(0, 20);
+
         TentativaAcesso tentativa = new TentativaAcesso(
                 "maria@email.com",
                 Permissao.DELETAR_USUARIO,
@@ -54,17 +59,26 @@ class AuditoriaServiceTest {
                 "Usuário não possui a permissão solicitada",
                 LocalDateTime.now());
 
-        when(auditoriaRepository.buscarPorEmail("maria@email.com"))
-                .thenReturn(List.of(tentativa));
+        Page<TentativaAcesso> pagina =
+                new PageImpl<>(List.of(tentativa), pageable, 1);
 
-        Collection<TentativaAcesso> tentativas =
-                auditoriaService.listarTentativasPorEmail("maria@email.com");
+        when(auditoriaRepository.buscarPorEmail(
+                "maria@email.com",
+                pageable
+        )).thenReturn(pagina);
 
-        assertEquals(1, tentativas.size());
+        Page<TentativaAcesso> tentativas =
+                auditoriaService.listarTentativasPorEmail(
+                        "maria@email.com",
+                        pageable);
+
+        assertEquals(1, tentativas.getTotalElements());
     }
 
     @Test
     void deveListarTentativasPermitidas() {
+        Pageable pageable = PageRequest.of(0, 20);
+
         TentativaAcesso tentativa = new TentativaAcesso(
                 "gustavo@email.com",
                 Permissao.DELETAR_USUARIO,
@@ -72,17 +86,26 @@ class AuditoriaServiceTest {
                 "Usuário possui permissão",
                 LocalDateTime.now());
 
-        when(auditoriaRepository.buscarPorResultado(true))
-                .thenReturn(List.of(tentativa));
+        Page<TentativaAcesso> pagina =
+                new PageImpl<>(List.of(tentativa), pageable, 1);
 
-        Collection<TentativaAcesso> tentativas =
-                auditoriaService.listarTentativasPorResultado(true);
+        when(auditoriaRepository.buscarPorResultado(
+                true,
+                pageable
+        )).thenReturn(pagina);
 
-        assertEquals(1, tentativas.size());
+        Page<TentativaAcesso> tentativas =
+                auditoriaService.listarTentativasPorResultado(
+                        true,
+                        pageable);
+
+        assertEquals(1, tentativas.getTotalElements());
     }
 
     @Test
     void deveListarTentativasNegadas() {
+        Pageable pageable = PageRequest.of(0, 20);
+
         TentativaAcesso tentativa = new TentativaAcesso(
                 "maria@email.com",
                 Permissao.DELETAR_USUARIO,
@@ -90,17 +113,26 @@ class AuditoriaServiceTest {
                 "Usuário não possui a permissão solicitada",
                 LocalDateTime.now());
 
-        when(auditoriaRepository.buscarPorResultado(false))
-                .thenReturn(List.of(tentativa));
+        Page<TentativaAcesso> pagina =
+                new PageImpl<>(List.of(tentativa), pageable, 1);
 
-        Collection<TentativaAcesso> tentativas =
-                auditoriaService.listarTentativasPorResultado(false);
+        when(auditoriaRepository.buscarPorResultado(
+                false,
+                pageable
+        )).thenReturn(pagina);
 
-        assertEquals(1, tentativas.size());
+        Page<TentativaAcesso> tentativas =
+                auditoriaService.listarTentativasPorResultado(
+                        false,
+                        pageable);
+
+        assertEquals(1, tentativas.getTotalElements());
     }
 
     @Test
     void deveListarTentativasPorEmailEResultado() {
+        Pageable pageable = PageRequest.of(0, 20);
+
         TentativaAcesso tentativa = new TentativaAcesso(
                 "maria@email.com",
                 Permissao.DELETAR_USUARIO,
@@ -108,16 +140,21 @@ class AuditoriaServiceTest {
                 "Usuário não possui a permissão solicitada",
                 LocalDateTime.now());
 
+        Page<TentativaAcesso> pagina =
+                new PageImpl<>(List.of(tentativa), pageable, 1);
+
         when(auditoriaRepository.buscarPorEmailEResultado(
                 "maria@email.com",
-                false
-        )).thenReturn(List.of(tentativa));
+                false,
+                pageable
+        )).thenReturn(pagina);
 
-        Collection<TentativaAcesso> tentativas =
+        Page<TentativaAcesso> tentativas =
                 auditoriaService.listarTentativasPorEmailEResultado(
                         "maria@email.com",
-                        false);
+                        false,
+                        pageable);
 
-        assertEquals(1, tentativas.size());
+        assertEquals(1, tentativas.getTotalElements());
     }
 }

@@ -3,10 +3,11 @@ package br.com.gustavo.iam.auditoria.application;
 import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
 import br.com.gustavo.iam.identidade.domain.Permissao;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 
 // Service responsável por registrar e consultar tentativas de acesso.
 @Service
@@ -22,8 +23,7 @@ public class AuditoriaService {
             String email,
             Permissao permissao,
             boolean acessoPermitido,
-            String motivo
-    ) {
+            String motivo) {
         TentativaAcesso tentativa = new TentativaAcesso(
                 email,
                 permissao,
@@ -34,24 +34,31 @@ public class AuditoriaService {
         auditoriaRepository.salvar(tentativa);
     }
 
-    public Collection<TentativaAcesso> listarTentativas() {
-        return auditoriaRepository.listarTodas();
+    public Page<TentativaAcesso> listarTentativas(Pageable pageable) {
+        return auditoriaRepository.listarTodas(pageable);
     }
 
-    public Collection<TentativaAcesso> listarTentativasPorEmail(String email) {
-        return auditoriaRepository.buscarPorEmail(email);
-    }
-
-    public Collection<TentativaAcesso> listarTentativasPorResultado(boolean acessoPermitido) {
-        return auditoriaRepository.buscarPorResultado(acessoPermitido);
-    }
-
-    public Collection<TentativaAcesso> listarTentativasPorEmailEResultado(
+    public Page<TentativaAcesso> listarTentativasPorEmail(
             String email,
-            boolean acessoPermitido
-    ) {
+            Pageable pageable) {
+        return auditoriaRepository.buscarPorEmail(email, pageable);
+    }
+
+    public Page<TentativaAcesso> listarTentativasPorResultado(
+            boolean acessoPermitido,
+            Pageable pageable) {
+        return auditoriaRepository.buscarPorResultado(
+                acessoPermitido,
+                pageable);
+    }
+
+    public Page<TentativaAcesso> listarTentativasPorEmailEResultado(
+            String email,
+            boolean acessoPermitido,
+            Pageable pageable) {
         return auditoriaRepository.buscarPorEmailEResultado(
                 email,
-                acessoPermitido);
+                acessoPermitido,
+                pageable);
     }
 }

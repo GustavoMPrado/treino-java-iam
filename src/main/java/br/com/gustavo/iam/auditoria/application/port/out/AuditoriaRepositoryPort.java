@@ -1,21 +1,22 @@
 package br.com.gustavo.iam.auditoria.application.port.out;
 
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
-
-import java.util.Collection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 // Porta de saída para persistência das tentativas de acesso.
 public interface AuditoriaRepositoryPort {
 
     TentativaAcesso salvar(TentativaAcesso tentativa);
 
-    Collection<TentativaAcesso> listarTodas();
+    Page<TentativaAcesso> listarTodas(Pageable pageable);
 
-    Collection<TentativaAcesso> buscarPorEmail(String email);
+    Page<TentativaAcesso> buscarPorEmail(
+            String email, Pageable pageable);
 
-    Collection<TentativaAcesso> buscarPorResultado(boolean acessoPermitido);
+    Page<TentativaAcesso> buscarPorResultado(
+            boolean acessoPermitido, Pageable pageable);
 
-    Collection<TentativaAcesso> buscarPorEmailEResultado(
-            String email,
-            boolean acessoPermitido);
+    Page<TentativaAcesso> buscarPorEmailEResultado(
+            String email, boolean acessoPermitido, Pageable pageable);
 }
