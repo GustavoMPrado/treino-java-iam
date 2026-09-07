@@ -1,14 +1,15 @@
 package br.com.gustavo.iam;
 
-import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.acesso.adapter.in.web.AcessoController;
 import br.com.gustavo.iam.acesso.application.ControleAcessoService;
 import br.com.gustavo.iam.auditoria.application.AuditoriaService;
+import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;
 import br.com.gustavo.iam.identidade.domain.Usuario;
+import br.com.gustavo.iam.shared.security.SecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
@@ -24,13 +25,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Testes do controller de verificação de acesso.
-// A requisição passa pelo controller e pelas regras reais de acesso.
+// Testes da camada web do controller de acesso.
+// A SecurityConfig real é carregada para validar o comportamento HTTP com segurança.
 @WebMvcTest(AcessoController.class)
 @Import({
         ControleAcessoService.class,
         UsuarioService.class,
-        AuditoriaService.class
+        AuditoriaService.class,
+        SecurityConfig.class
 })
 class AcessoControllerTest {
 
@@ -42,6 +44,9 @@ class AcessoControllerTest {
 
     @MockitoBean
     private AuditoriaRepositoryPort auditoriaRepository;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
 
     @BeforeEach
     void setUp() {

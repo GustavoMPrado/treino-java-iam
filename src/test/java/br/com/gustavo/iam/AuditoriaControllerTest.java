@@ -4,14 +4,13 @@ import br.com.gustavo.iam.auditoria.adapter.in.web.AuditoriaController;
 import br.com.gustavo.iam.auditoria.application.AuditoriaService;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
 import br.com.gustavo.iam.identidade.domain.Permissao;
+import br.com.gustavo.iam.shared.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.*;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,7 +26,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Testes da camada web do controller de auditoria.
+// A SecurityConfig real é carregada para validar o comportamento HTTP com segurança.
 @WebMvcTest(AuditoriaController.class)
+@Import(SecurityConfig.class)
 class AuditoriaControllerTest {
 
     @Autowired
@@ -35,6 +36,9 @@ class AuditoriaControllerTest {
 
     @MockitoBean
     private AuditoriaService auditoriaService;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
 
     @Test
     void deveListarTentativasDeAcesso() throws Exception {

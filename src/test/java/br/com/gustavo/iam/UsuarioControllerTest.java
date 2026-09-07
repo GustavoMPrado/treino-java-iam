@@ -7,11 +7,13 @@ import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;
 import br.com.gustavo.iam.identidade.domain.Usuario;
+import br.com.gustavo.iam.shared.security.SecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -26,10 +28,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Testes da camada web de usuários.
-// O banco não é carregado neste teste.
+// Testes da camada web do controller de usuários.
+// A SecurityConfig real é carregada para validar o comportamento HTTP com segurança.
 @WebMvcTest(UsuarioController.class)
-@Import(UsuarioService.class)
+@Import({UsuarioService.class, SecurityConfig.class})
 class UsuarioControllerTest {
 
     @Autowired
@@ -40,6 +42,9 @@ class UsuarioControllerTest {
 
     @MockitoBean
     private MfaService mfaService;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
 
     @BeforeEach
     void setUp() {

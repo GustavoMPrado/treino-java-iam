@@ -1,9 +1,13 @@
 package br.com.gustavo.iam;
 
 import br.com.gustavo.iam.rbac.adapter.in.web.RbacController;
+import br.com.gustavo.iam.shared.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -12,12 +16,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Testes do controller de RBAC.
+// Testes da camada web do controller de RBAC.
+// A SecurityConfig real é carregada para validar o comportamento HTTP com segurança.
 @WebMvcTest(RbacController.class)
+@Import(SecurityConfig.class)
 class RbacControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
 
     @Test
     void deveListarRoles() throws Exception {
