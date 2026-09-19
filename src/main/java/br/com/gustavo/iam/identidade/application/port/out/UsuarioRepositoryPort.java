@@ -11,6 +11,8 @@ public interface UsuarioRepositoryPort {
 
     Optional<Usuario> buscarPorEmail(String email);
 
+    Optional<Usuario> buscarPorKeycloakSubject(String keycloakSubject);
+
     boolean existePorEmail(String email);
 
     Usuario salvar(Usuario usuario);

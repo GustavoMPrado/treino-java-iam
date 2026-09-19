@@ -27,6 +27,9 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(name = "keycloak_subject", unique = true)
+    private String keycloakSubject;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -62,6 +65,10 @@ public class Usuario {
     public String getEmail() {
 
         return email;
+    }
+
+    public String getKeycloakSubject() {
+        return keycloakSubject;
     }
 
     public Role getRole() {

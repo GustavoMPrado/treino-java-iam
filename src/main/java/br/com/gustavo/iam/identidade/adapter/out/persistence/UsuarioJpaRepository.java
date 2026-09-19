@@ -10,5 +10,7 @@ public interface UsuarioJpaRepository extends JpaRepository<Usuario, UUID> {
 
     Optional<Usuario> findByEmail(String email);
 
+    Optional<Usuario> findByKeycloakSubject(String keycloakSubject);
+
     boolean existsByEmail(String email);
 }

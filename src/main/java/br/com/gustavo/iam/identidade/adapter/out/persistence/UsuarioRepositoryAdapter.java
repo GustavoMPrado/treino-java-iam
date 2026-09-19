@@ -30,6 +30,11 @@ public class UsuarioRepositoryAdapter implements UsuarioRepositoryPort {
         return usuarioJpaRepository.findByEmail(email);
     }
 
+    @Override
+    public Optional<Usuario> buscarPorKeycloakSubject(String keycloakSubject) {
+        return usuarioJpaRepository.findByKeycloakSubject(keycloakSubject);
+    }
+
     // Verifica se já existe um usuário com o e-mail informado.
     @Override
     public boolean existePorEmail(String email) {
