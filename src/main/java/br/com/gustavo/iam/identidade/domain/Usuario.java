@@ -71,6 +71,10 @@ public class Usuario {
         return keycloakSubject;
     }
 
+    public void vincularKeycloakSubject(String keycloakSubject) {
+        this.keycloakSubject = keycloakSubject;
+    }
+
     public Role getRole() {
 
         return role;
@@ -102,7 +106,7 @@ public class Usuario {
     }
 
 
-    // Ativa o MFA após a confirmação de um desafio válido.
+
     public void ativarMfa() {
         this.mfaAtivo = true;
     }
