@@ -1,7 +1,6 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.identidade.adapter.out.persistence;
 
-import br.com.gustavo.iam.identidade.adapter.out.persistence.DesafioMfaRepositoryAdapter;
-import br.com.gustavo.iam.identidade.adapter.out.persistence.UsuarioRepositoryAdapter;
+import br.com.gustavo.iam.support.TestcontainersConfiguration;
 import br.com.gustavo.iam.identidade.application.port.out.DesafioMfaRepositoryPort;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.DesafioMfa;

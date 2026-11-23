@@ -1,6 +1,5 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.rbac.adapter.in.web;
 
-import br.com.gustavo.iam.rbac.adapter.in.web.RbacController;
 import br.com.gustavo.iam.shared.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

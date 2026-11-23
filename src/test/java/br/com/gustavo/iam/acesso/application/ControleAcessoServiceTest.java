@@ -1,8 +1,7 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.acesso.application;
 
 import br.com.gustavo.iam.acesso.adapter.in.web.dto.VerificarAcessoRequest;
 import br.com.gustavo.iam.acesso.adapter.in.web.dto.VerificarAcessoResponse;
-import br.com.gustavo.iam.acesso.application.ControleAcessoService;
 import br.com.gustavo.iam.auditoria.application.AuditoriaService;
 import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;

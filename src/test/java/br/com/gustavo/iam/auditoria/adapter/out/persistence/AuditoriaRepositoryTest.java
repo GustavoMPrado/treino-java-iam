@@ -1,6 +1,6 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.auditoria.adapter.out.persistence;
 
-import br.com.gustavo.iam.auditoria.adapter.out.persistence.AuditoriaRepositoryAdapter;
+import br.com.gustavo.iam.support.TestcontainersConfiguration;
 import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
 import br.com.gustavo.iam.identidade.domain.Permissao;

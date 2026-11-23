@@ -1,8 +1,7 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.identidade.application;
 
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.CriarUsuarioRequest;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.UsuarioResponse;
-import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;

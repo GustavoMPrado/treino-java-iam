@@ -1,6 +1,5 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.identidade.adapter.in.web;
 
-import br.com.gustavo.iam.identidade.adapter.in.web.UsuarioController;
 import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;

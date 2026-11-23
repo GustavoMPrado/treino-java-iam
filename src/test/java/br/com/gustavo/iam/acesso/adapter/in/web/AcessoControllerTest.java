@@ -1,6 +1,5 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.acesso.adapter.in.web;
 
-import br.com.gustavo.iam.acesso.adapter.in.web.AcessoController;
 import br.com.gustavo.iam.acesso.application.ControleAcessoService;
 import br.com.gustavo.iam.auditoria.application.AuditoriaService;
 import br.com.gustavo.iam.auditoria.application.port.out.AuditoriaRepositoryPort;

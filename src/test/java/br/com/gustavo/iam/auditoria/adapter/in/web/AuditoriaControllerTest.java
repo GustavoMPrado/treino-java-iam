@@ -1,6 +1,5 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.auditoria.adapter.in.web;
 
-import br.com.gustavo.iam.auditoria.adapter.in.web.AuditoriaController;
 import br.com.gustavo.iam.auditoria.application.AuditoriaService;
 import br.com.gustavo.iam.auditoria.domain.TentativaAcesso;
 import br.com.gustavo.iam.identidade.domain.Permissao;

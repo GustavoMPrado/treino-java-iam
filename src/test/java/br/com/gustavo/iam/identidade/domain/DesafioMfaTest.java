@@ -1,10 +1,5 @@
-package br.com.gustavo.iam;
+package br.com.gustavo.iam.identidade.domain;
 
-import br.com.gustavo.iam.identidade.domain.DesafioMfa;
-import br.com.gustavo.iam.identidade.domain.Role;
-import br.com.gustavo.iam.identidade.domain.StatusDesafioMfa;
-import br.com.gustavo.iam.identidade.domain.StatusUsuario;
-import br.com.gustavo.iam.identidade.domain.Usuario;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
