@@ -1,5 +1,8 @@
 package br.com.gustavo.iam.identidade.adapter.in.web;
 
+import br.com.gustavo.iam.identidade.adapter.in.web.dto.ConfirmarMfaRequest;
+import br.com.gustavo.iam.identidade.adapter.in.web.dto.IniciarMfaResponse;
+import br.com.gustavo.iam.identidade.adapter.in.web.dto.UsuarioResponse;
 import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.in.UsuarioAutenticadoUseCase;
@@ -10,9 +13,13 @@ import br.com.gustavo.iam.identidade.domain.Usuario;
 import br.com.gustavo.iam.shared.security.SecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,9 +29,11 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -99,14 +108,20 @@ class UsuarioControllerTest {
 
     @Test
     void deveListarUsuarios() throws Exception {
-        mockMvc.perform(get("/usuarios"))
+        mockMvc.perform(get("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        )))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)));
     }
 
     @Test
     void deveBuscarUsuarioPorEmail() throws Exception {
-        mockMvc.perform(get("/usuarios/gustavo@email.com"))
+        mockMvc.perform(get("/usuarios/gustavo@email.com")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        )))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nome").value("Gustavo"))
                 .andExpect(jsonPath("$.email").value("gustavo@email.com"))
@@ -117,7 +132,10 @@ class UsuarioControllerTest {
 
     @Test
     void deveRetornar404QuandoUsuarioNaoExiste() throws Exception {
-        mockMvc.perform(get("/usuarios/naoexiste@email.com"))
+        mockMvc.perform(get("/usuarios/naoexiste@email.com")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        )))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.mensagem")
                         .value("Usuário não encontrado com o e-mail: naoexiste@email.com"));
@@ -136,6 +154,9 @@ class UsuarioControllerTest {
                 """;
 
         mockMvc.perform(post("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        ))
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isOk())
@@ -159,6 +180,9 @@ class UsuarioControllerTest {
                 """;
 
         mockMvc.perform(post("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        ))
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isConflict())
@@ -179,6 +203,9 @@ class UsuarioControllerTest {
                 """;
 
         mockMvc.perform(post("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        ))
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isBadRequest());
@@ -197,6 +224,9 @@ class UsuarioControllerTest {
                 """;
 
         mockMvc.perform(post("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        ))
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isBadRequest());
@@ -215,20 +245,197 @@ class UsuarioControllerTest {
                 """;
 
         mockMvc.perform(post("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        ))
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.mensagem").value("Valor inválido no JSON enviado."));
+                .andExpect(jsonPath("$.mensagem")
+                        .value("Valor inválido no JSON enviado."));
     }
 
     @Test
     void deveBuscarUsuarioAutenticado() throws Exception {
-        mockMvc.perform(get("/usuarios/me"))
+        mockMvc.perform(get("/usuarios/me")
+                        .with(jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nome").value("Gustavo"))
                 .andExpect(jsonPath("$.email").value("gustavo@email.com"))
                 .andExpect(jsonPath("$.role").value("ADMIN"))
                 .andExpect(jsonPath("$.mfaAtivo").value(true))
                 .andExpect(jsonPath("$.status").value("ATIVO"));
+    }
+
+    @Test
+    void deveRetornar401AoBuscarPerfilSemAutenticacao() throws Exception {
+        mockMvc.perform(get("/usuarios/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deveRetornar403QuandoUserTentarListarUsuarios() throws Exception {
+        mockMvc.perform(get("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_USER")
+                        )))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deveRetornar403QuandoGestorTentarCadastrarUsuario() throws Exception {
+        String body = """
+            {
+              "nome": "Carlos",
+              "email": "carlos@email.com",
+              "role": "USER",
+              "mfaAtivo": true,
+              "status": "ATIVO"
+            }
+            """;
+
+        mockMvc.perform(post("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        ))
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void devePermitirAdminListarUsuarios() throws Exception {
+        mockMvc.perform(get("/usuarios")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        )))
+
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "PATCH, /usuarios/gustavo@email.com/bloquear, USER",
+            "PATCH, /usuarios/gustavo@email.com/bloquear, GESTOR",
+            "PATCH, /usuarios/gustavo@email.com/ativar, USER",
+            "PATCH, /usuarios/gustavo@email.com/ativar, GESTOR",
+            "PATCH, /usuarios/gustavo@email.com/marcar-pendente, USER",
+            "PATCH, /usuarios/gustavo@email.com/marcar-pendente, GESTOR",
+            "POST, /usuarios/gustavo@email.com/mfa/iniciar, USER",
+            "POST, /usuarios/gustavo@email.com/mfa/iniciar, GESTOR",
+            "POST, /usuarios/gustavo@email.com/mfa/confirmar, USER",
+            "POST, /usuarios/gustavo@email.com/mfa/confirmar, GESTOR",
+            "PATCH, /usuarios/gustavo@email.com/mfa/desativar, USER",
+            "PATCH, /usuarios/gustavo@email.com/mfa/desativar, GESTOR"
+    })
+    void deveNegarOperacoesAdministrativasParaRolesNaoAutorizadas(
+            String metodo,
+            String endpoint,
+            String role
+    ) throws Exception {
+        mockMvc.perform(request(HttpMethod.valueOf(metodo), endpoint)
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_" + role)
+                        )))
+                .andExpect(status().isForbidden());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "bloquear, ATIVO, BLOQUEADO",
+            "ativar, BLOQUEADO, ATIVO",
+            "marcar-pendente, ATIVO, PENDENTE"
+    })
+    void devePermitirAdminAlterarStatusUsuario(
+            String operacao,
+            StatusUsuario statusInicial,
+            StatusUsuario statusEsperado
+    ) throws Exception {
+        Usuario usuario = new Usuario(
+                "Gustavo",
+                "gustavo@email.com",
+                Role.USER,
+                true,
+                statusInicial
+        );
+
+        when(usuarioRepository.buscarPorEmail("gustavo@email.com"))
+                .thenReturn(Optional.of(usuario));
+
+        mockMvc.perform(request(
+                        HttpMethod.PATCH,
+                        "/usuarios/gustavo@email.com/" + operacao
+                )
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        )))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value(statusEsperado.name()));
+    }
+
+    @Test
+    void devePermitirAdminIniciarMfa() throws Exception {
+        when(mfaService.iniciarMfa("gustavo@email.com"))
+                .thenReturn(new IniciarMfaResponse(
+                        "gustavo@email.com",
+                        true,
+                        "123456"
+                ));
+
+        mockMvc.perform(post("/usuarios/gustavo@email.com/mfa/iniciar")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        )))
+                .andExpect(status().isOk());
+
+        verify(mfaService).iniciarMfa("gustavo@email.com");
+    }
+
+    @Test
+    void devePermitirAdminDesativarMfa() throws Exception {
+        mockMvc.perform(request(
+                        HttpMethod.PATCH,
+                        "/usuarios/gustavo@email.com/mfa/desativar"
+                )
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        )))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mfaAtivo").value(false));
+    }
+
+    @Test
+    void devePermitirAdminConfirmarMfa() throws Exception {
+        when(mfaService.confirmarMfa(
+                eq("gustavo@email.com"),
+                any(ConfirmarMfaRequest.class)
+        )).thenReturn(new UsuarioResponse(
+                "Gustavo",
+                "gustavo@email.com",
+                Role.ADMIN,
+                true,
+                StatusUsuario.ATIVO
+        ));
+
+        String body = """
+            {
+              "codigo": "123456"
+            }
+            """;
+
+        mockMvc.perform(post("/usuarios/gustavo@email.com/mfa/confirmar")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        ))
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mfaAtivo").value(true));
+
+        verify(mfaService).confirmarMfa(
+                eq("gustavo@email.com"),
+                any(ConfirmarMfaRequest.class)
+        );
     }
 }

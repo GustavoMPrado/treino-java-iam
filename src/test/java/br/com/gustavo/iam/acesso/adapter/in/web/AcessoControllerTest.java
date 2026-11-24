@@ -14,12 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
+
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -113,6 +115,7 @@ class AcessoControllerTest {
                 """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isOk())
@@ -133,6 +136,7 @@ class AcessoControllerTest {
                 """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isOk())
@@ -153,6 +157,7 @@ class AcessoControllerTest {
                 """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isOk())
@@ -173,6 +178,7 @@ class AcessoControllerTest {
                 """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isOk())
@@ -191,6 +197,7 @@ class AcessoControllerTest {
                 """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isOk())
@@ -210,6 +217,7 @@ class AcessoControllerTest {
                 """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isOk())
@@ -230,6 +238,7 @@ class AcessoControllerTest {
                 """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isBadRequest());
@@ -244,6 +253,7 @@ class AcessoControllerTest {
                 """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isBadRequest());
@@ -254,13 +264,31 @@ class AcessoControllerTest {
         String body = """
                 {
                   "email": "gustavo@email.com",
-                  "permissao": "INVALIDA"}""";
+                  "permissao": "INVALIDA"
+                }
+                """;
 
         mockMvc.perform(post("/acessos/verificar")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensagem")
                         .value("Valor inválido no JSON enviado."));
+    }
+
+    @Test
+    void deveRetornar401QuandoNaoEstiverAutenticado() throws Exception {
+        String body = """
+            {
+              "email": "gustavo@email.com",
+              "permissao": "DELETAR_USUARIO"
+            }
+            """;
+
+        mockMvc.perform(post("/acessos/verificar")
+                        .contentType("application/json")
+                        .content(body))
+                .andExpect(status().isUnauthorized());
     }
 }

@@ -5,12 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,7 +31,10 @@ class RbacControllerTest {
 
     @Test
     void deveListarRoles() throws Exception {
-        mockMvc.perform(get("/rbac/roles"))
+        mockMvc.perform(get("/rbac/roles")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        )))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[*].nome", containsInAnyOrder(
@@ -40,7 +45,10 @@ class RbacControllerTest {
 
     @Test
     void deveListarPermissoes() throws Exception {
-        mockMvc.perform(get("/rbac/permissoes"))
+        mockMvc.perform(get("/rbac/permissoes")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        )))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(5)))
                 .andExpect(jsonPath("$[*]", containsInAnyOrder(
@@ -53,7 +61,10 @@ class RbacControllerTest {
 
     @Test
     void deveListarRolesComSuasPermissoes() throws Exception {
-        mockMvc.perform(get("/rbac/roles"))
+        mockMvc.perform(get("/rbac/roles")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        )))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nome").value("ADMIN"))
                 .andExpect(jsonPath("$[0].permissoes", hasSize(5)))
@@ -67,5 +78,14 @@ class RbacControllerTest {
                 .andExpect(jsonPath("$[2].permissoes", hasSize(1)))
                 .andExpect(jsonPath("$[2].permissoes", containsInAnyOrder(
                         "VER_PERFIL")));
+    }
+
+    @Test
+    void deveRetornar403QuandoUsuarioNaoTemRolePermitida() throws Exception {
+        mockMvc.perform(get("/rbac/roles")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_USER")
+                        )))
+                .andExpect(status().isForbidden());
     }
 }

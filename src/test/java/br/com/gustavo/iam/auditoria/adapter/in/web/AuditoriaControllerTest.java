@@ -8,7 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,6 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,7 +59,10 @@ class AuditoriaControllerTest {
         when(auditoriaService.listarTentativas(any(Pageable.class)))
                 .thenReturn(pagina);
 
-        mockMvc.perform(get("/auditoria/acessos"))
+        mockMvc.perform(get("/auditoria/acessos")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        )))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath("$.content[0].email").value("gustavo@email.com"))
@@ -83,6 +92,9 @@ class AuditoriaControllerTest {
         )).thenReturn(pagina);
 
         mockMvc.perform(get("/auditoria/acessos")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        ))
                         .param("email", "maria@email.com"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)))
@@ -110,6 +122,9 @@ class AuditoriaControllerTest {
         )).thenReturn(pagina);
 
         mockMvc.perform(get("/auditoria/acessos")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        ))
                         .param("permitido", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)))
@@ -137,6 +152,9 @@ class AuditoriaControllerTest {
         )).thenReturn(pagina);
 
         mockMvc.perform(get("/auditoria/acessos")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        ))
                         .param("permitido", "false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)))
@@ -165,6 +183,9 @@ class AuditoriaControllerTest {
         )).thenReturn(pagina);
 
         mockMvc.perform(get("/auditoria/acessos")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_GESTOR")
+                        ))
                         .param("email", "maria@email.com")
                         .param("permitido", "false"))
                 .andExpect(status().isOk())
@@ -174,6 +195,33 @@ class AuditoriaControllerTest {
                 .andExpect(jsonPath("$.content[0].acessoPermitido").value(false))
                 .andExpect(jsonPath("$.content[0].motivo")
                         .value("Usuário não possui a permissão solicitada"));
+    }
+
+    @Test
+    void deveRetornar401QuandoNaoEstiverAutenticado() throws Exception {
+        mockMvc.perform(get("/auditoria/acessos"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deveRetornar403QuandoUserConsultarAuditoria() throws Exception {
+        mockMvc.perform(get("/auditoria/acessos")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_USER")
+                        )))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void devePermitirAdminConsultarAuditoria() throws Exception {
+        when(auditoriaService.listarTentativas(any(Pageable.class)))
+                .thenReturn(Page.empty());
+
+        mockMvc.perform(get("/auditoria/acessos")
+                        .with(jwt().authorities(
+                                new SimpleGrantedAuthority("ROLE_ADMIN")
+                        )))
+                .andExpect(status().isOk());
     }
 
     private Page<TentativaAcesso> criarPagina(TentativaAcesso tentativa) {
