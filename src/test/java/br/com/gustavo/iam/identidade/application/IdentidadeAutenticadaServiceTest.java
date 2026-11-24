@@ -1,5 +1,6 @@
 package br.com.gustavo.iam.identidade.application;
 
+import br.com.gustavo.iam.identidade.application.port.out.IdentidadeAutenticadaPort;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;
@@ -25,12 +26,18 @@ public class IdentidadeAutenticadaServiceTest {
     @Mock
     private UsuarioRepositoryPort usuarioRepository;
 
+    @Mock
+    private IdentidadeAutenticadaPort identidadeAutenticadaPort;
+
     private IdentidadeAutenticadaService identidadeAutenticadaService;
 
     @BeforeEach
     void setUp() {
         identidadeAutenticadaService =
-                new IdentidadeAutenticadaService(usuarioRepository);
+                new IdentidadeAutenticadaService(
+                        usuarioRepository,
+                        identidadeAutenticadaPort
+                );
     }
 
     @Test
@@ -268,6 +275,39 @@ public class IdentidadeAutenticadaServiceTest {
         verify(usuarioRepository).buscarPorKeycloakSubject("sub-123");
         verify(usuarioRepository, never()).buscarPorEmail(anyString());
         verify(usuarioRepository, never()).salvar(any(Usuario.class));
+    }
+
+    @Test
+    void deveResolverUsuarioAutenticado() {
+        Usuario usuario = new Usuario(
+                "Gustavo",
+                "gustavo@email.com",
+                Role.USER,
+                true,
+                StatusUsuario.ATIVO
+        );
+
+        usuario.vincularKeycloakSubject("sub-123");
+
+        IdentidadeAutenticada identidade = new IdentidadeAutenticada(
+                "sub-123",
+                "gustavo@email.com",
+                true
+        );
+
+        when(identidadeAutenticadaPort.obterIdentidadeAutenticada())
+                .thenReturn(identidade);
+
+        when(usuarioRepository.buscarPorKeycloakSubject("sub-123"))
+                .thenReturn(Optional.of(usuario));
+
+        Usuario resultado =
+                identidadeAutenticadaService.resolverUsuarioAutenticado();
+
+        assertSame(usuario, resultado);
+
+        verify(identidadeAutenticadaPort).obterIdentidadeAutenticada();
+        verify(usuarioRepository).buscarPorKeycloakSubject("sub-123");
     }
 }
 

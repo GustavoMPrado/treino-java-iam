@@ -2,6 +2,7 @@ package br.com.gustavo.iam.identidade.adapter.in.web;
 
 import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
+import br.com.gustavo.iam.identidade.application.port.in.UsuarioAutenticadoUseCase;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;
@@ -43,6 +44,9 @@ class UsuarioControllerTest {
     private MfaService mfaService;
 
     @MockitoBean
+    private UsuarioAutenticadoUseCase usuarioAutenticadoUseCase;
+
+    @MockitoBean
     private JwtDecoder jwtDecoder;
 
     @BeforeEach
@@ -54,6 +58,9 @@ class UsuarioControllerTest {
                 true,
                 StatusUsuario.ATIVO
         );
+
+        when(usuarioAutenticadoUseCase.resolverUsuarioAutenticado())
+                .thenReturn(gustavo);
 
         Usuario maria = new Usuario(
                 "Maria",
@@ -212,5 +219,16 @@ class UsuarioControllerTest {
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.mensagem").value("Valor inválido no JSON enviado."));
+    }
+
+    @Test
+    void deveBuscarUsuarioAutenticado() throws Exception {
+        mockMvc.perform(get("/usuarios/me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nome").value("Gustavo"))
+                .andExpect(jsonPath("$.email").value("gustavo@email.com"))
+                .andExpect(jsonPath("$.role").value("ADMIN"))
+                .andExpect(jsonPath("$.mfaAtivo").value(true))
+                .andExpect(jsonPath("$.status").value("ATIVO"));
     }
 }

@@ -6,13 +6,10 @@ import br.com.gustavo.iam.identidade.adapter.in.web.dto.IniciarMfaResponse;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.UsuarioResponse;
 import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
+import br.com.gustavo.iam.identidade.application.port.in.UsuarioAutenticadoUseCase;
+import br.com.gustavo.iam.identidade.domain.Usuario;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
@@ -25,18 +22,27 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
     private final MfaService mfaService;
-
+    private final UsuarioAutenticadoUseCase usuarioAutenticadoUseCase;
     public UsuarioController(
             UsuarioService usuarioService,
-            MfaService mfaService
+            MfaService mfaService,
+            UsuarioAutenticadoUseCase usuarioAutenticadoUseCase
     ) {
         this.usuarioService = usuarioService;
         this.mfaService = mfaService;
+        this.usuarioAutenticadoUseCase = usuarioAutenticadoUseCase;
     }
 
     @GetMapping("/usuarios")
     public Collection<UsuarioResponse> listarTodos() {
         return usuarioService.listarTodos();
+    }
+
+    @GetMapping("/usuarios/me")
+    public UsuarioResponse buscarUsuarioAutenticado() {
+        Usuario usuario = usuarioAutenticadoUseCase.resolverUsuarioAutenticado();
+
+        return UsuarioResponse.from(usuario);
     }
 
     @GetMapping("/usuarios/{email}")

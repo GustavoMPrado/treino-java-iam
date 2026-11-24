@@ -1,11 +1,13 @@
 package br.com.gustavo.iam.identidade.adapter.in.web.dto;
 
-// DTO de saída usado pra devolver os dados de um usuário pela API.
-// Ele representa o JSON de resposta dos endpoints de usuários.
-// Sem setters porque a resposta já nasce pronta no código e o Spring apenas lê os valores pelos getters.
+// DTO de saída usado pra devolver os dados de um usuário pela API
+// Representa o JSON de resposta dos endpoints de usuários
+// Pode ser criado diretamente ou convertido a partir da entidade Usuario.
+// Não tem setters porque a resposta é imutável após a criação.
 
 import br.com.gustavo.iam.identidade.domain.Role;
 import br.com.gustavo.iam.identidade.domain.StatusUsuario;
+import br.com.gustavo.iam.identidade.domain.Usuario;
 
 public class UsuarioResponse {
 
@@ -21,6 +23,16 @@ public class UsuarioResponse {
         this.role = role;
         this.mfaAtivo = mfaAtivo;
         this.status = status;
+    }
+
+    public static UsuarioResponse from(Usuario usuario) {
+        return new UsuarioResponse(
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getRole(),
+                usuario.isMfaAtivo(),
+                usuario.getStatus()
+        );
     }
 
     public String getNome() {
