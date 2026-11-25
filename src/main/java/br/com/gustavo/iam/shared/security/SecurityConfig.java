@@ -8,10 +8,25 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimValidator;
+
+import java.util.List;
 
 // Configuração central de segurança da aplicação.
+// Valida se o JWT comprova a autenticação por senha e OTP realizada pelo Keycloak.
+
 @Configuration
 public class SecurityConfig {
+
+    @Bean
+    public OAuth2TokenValidator<Jwt> mfaValidator() {
+        return new JwtClaimValidator<Object>("amr", amr ->
+                amr instanceof List<?> methods
+                        && methods.contains("pwd")
+                        && methods.contains("otp"));
+    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
