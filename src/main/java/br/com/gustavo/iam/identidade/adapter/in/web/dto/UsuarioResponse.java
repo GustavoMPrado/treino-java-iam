@@ -14,14 +14,12 @@ public class UsuarioResponse {
     private String nome;
     private String email;
     private Role role;
-    private boolean mfaAtivo;
     private StatusUsuario status;
 
-    public UsuarioResponse(String nome, String email, Role role, boolean mfaAtivo, StatusUsuario status) {
+    public UsuarioResponse(String nome, String email, Role role, StatusUsuario status) {
         this.nome = nome;
         this.email = email;
         this.role = role;
-        this.mfaAtivo = mfaAtivo;
         this.status = status;
     }
 
@@ -30,7 +28,6 @@ public class UsuarioResponse {
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getRole(),
-                usuario.isMfaAtivo(),
                 usuario.getStatus()
         );
     }
@@ -45,10 +42,6 @@ public class UsuarioResponse {
 
     public Role getRole() {
         return role;
-    }
-
-    public boolean isMfaAtivo() {
-        return mfaAtivo;
     }
 
     public StatusUsuario getStatus() {

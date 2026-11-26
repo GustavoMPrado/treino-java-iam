@@ -43,7 +43,6 @@ class UsuarioServiceTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.ATIVO
         );
 
@@ -51,7 +50,6 @@ class UsuarioServiceTest {
                 "Maria",
                 "maria@email.com",
                 Role.GESTOR,
-                true,
                 StatusUsuario.ATIVO
         );
 
@@ -59,7 +57,6 @@ class UsuarioServiceTest {
                 "João",
                 "joao@email.com",
                 Role.USER,
-                false,
                 StatusUsuario.ATIVO
         );
 
@@ -84,7 +81,6 @@ class UsuarioServiceTest {
         assertEquals("Gustavo", usuario.getNome());
         assertEquals("gustavo@email.com", usuario.getEmail());
         assertEquals(Role.ADMIN, usuario.getRole());
-        assertTrue(usuario.isMfaAtivo());
         assertEquals(StatusUsuario.ATIVO, usuario.getStatus());
     }
 
@@ -110,7 +106,6 @@ class UsuarioServiceTest {
         request.setNome("Carlos");
         request.setEmail("carlos@email.com");
         request.setRole(Role.USER);
-        request.setMfaAtivo(true);
         request.setStatus(StatusUsuario.ATIVO);
 
         when(usuarioRepository.existePorEmail("carlos@email.com"))
@@ -124,7 +119,6 @@ class UsuarioServiceTest {
         assertEquals("Carlos", usuario.getNome());
         assertEquals("carlos@email.com", usuario.getEmail());
         assertEquals(Role.USER, usuario.getRole());
-        assertTrue(usuario.isMfaAtivo());
         assertEquals(StatusUsuario.ATIVO, usuario.getStatus());
     }
 
@@ -134,7 +128,6 @@ class UsuarioServiceTest {
         request.setNome("Outro Gustavo");
         request.setEmail("gustavo@email.com");
         request.setRole(Role.USER);
-        request.setMfaAtivo(true);
         request.setStatus(StatusUsuario.ATIVO);
 
         when(usuarioRepository.existePorEmail("gustavo@email.com"))
@@ -164,7 +157,6 @@ class UsuarioServiceTest {
         assertEquals("Gustavo", usuario.getNome());
         assertEquals("gustavo@email.com", usuario.getEmail());
         assertEquals(Role.ADMIN, usuario.getRole());
-        assertTrue(usuario.isMfaAtivo());
         assertEquals(StatusUsuario.ATIVO, usuario.getStatus());
     }
 
@@ -203,7 +195,6 @@ class UsuarioServiceTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.BLOQUEADO
         );
 
@@ -272,41 +263,11 @@ class UsuarioServiceTest {
         );
     }
 
-    @Test
-    void deveDesativarMfa() {
-        Usuario gustavo = criarGustavo();
-
-        when(usuarioRepository.buscarPorEmail("gustavo@email.com"))
-                .thenReturn(Optional.of(gustavo));
-
-        when(usuarioRepository.salvar(gustavo))
-                .thenReturn(gustavo);
-
-        UsuarioResponse usuario =
-                usuarioService.desativarMfa("gustavo@email.com");
-
-        assertEquals("Gustavo", usuario.getNome());
-        assertEquals("gustavo@email.com", usuario.getEmail());
-        assertFalse(usuario.isMfaAtivo());
-    }
-
-    @Test
-    void deveLancarExcecaoAoDesativarMfaParaUsuarioInexistente() {
-        when(usuarioRepository.buscarPorEmail("naoexiste@email.com"))
-                .thenReturn(Optional.empty());
-
-        assertThrows(
-                UsuarioNaoEncontradoException.class,
-                () -> usuarioService.desativarMfa("naoexiste@email.com")
-        );
-    }
-
     private Usuario criarGustavo() {
         return new Usuario(
                 "Gustavo",
                 "gustavo@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.ATIVO
         );
     }

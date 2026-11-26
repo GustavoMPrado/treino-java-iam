@@ -1,10 +1,7 @@
 package br.com.gustavo.iam.identidade.adapter.in.web;
 
-import br.com.gustavo.iam.identidade.adapter.in.web.dto.ConfirmarMfaRequest;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.CriarUsuarioRequest;
-import br.com.gustavo.iam.identidade.adapter.in.web.dto.IniciarMfaResponse;
 import br.com.gustavo.iam.identidade.adapter.in.web.dto.UsuarioResponse;
-import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.in.UsuarioAutenticadoUseCase;
 import br.com.gustavo.iam.identidade.domain.Usuario;
@@ -21,15 +18,11 @@ import java.util.Collection;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-    private final MfaService mfaService;
     private final UsuarioAutenticadoUseCase usuarioAutenticadoUseCase;
     public UsuarioController(
             UsuarioService usuarioService,
-            MfaService mfaService,
-            UsuarioAutenticadoUseCase usuarioAutenticadoUseCase
-    ) {
+            UsuarioAutenticadoUseCase usuarioAutenticadoUseCase) {
         this.usuarioService = usuarioService;
-        this.mfaService = mfaService;
         this.usuarioAutenticadoUseCase = usuarioAutenticadoUseCase;
     }
 
@@ -68,23 +61,5 @@ public class UsuarioController {
     @PatchMapping("/usuarios/{email}/marcar-pendente")
     public UsuarioResponse marcarUsuarioComoPendente(@PathVariable String email) {
         return usuarioService.marcarUsuarioComoPendente(email);
-    }
-
-    @PostMapping("/usuarios/{email}/mfa/iniciar")
-    public IniciarMfaResponse iniciarMfa(@PathVariable String email) {
-        return mfaService.iniciarMfa(email);
-    }
-
-    @PostMapping("/usuarios/{email}/mfa/confirmar")
-    public UsuarioResponse confirmarMfa(
-            @PathVariable String email,
-            @Valid @RequestBody ConfirmarMfaRequest request
-    ) {
-        return mfaService.confirmarMfa(email, request);
-    }
-
-    @PatchMapping("/usuarios/{email}/mfa/desativar")
-    public UsuarioResponse desativarMfa(@PathVariable String email) {
-        return usuarioService.desativarMfa(email);
     }
 }

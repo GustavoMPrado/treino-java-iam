@@ -49,12 +49,11 @@ class ControleAcessoServiceTest {
     }
 
     @Test
-    void devePermitirAcessoQuandoUsuarioTemPermissaoStatusAtivoEMfaAtivo() {
+    void devePermitirAcessoQuandoUsuarioTemPermissaoEStatusAtivo() {
         Usuario gustavo = new Usuario(
                 "Gustavo",
                 "gustavo@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.ATIVO);
 
         when(usuarioRepository.buscarPorEmail("gustavo@email.com"))
@@ -71,7 +70,7 @@ class ControleAcessoServiceTest {
         assertEquals("Gustavo", response.getUsuario());
         assertEquals(Permissao.DELETAR_USUARIO, response.getPermissao());
         assertEquals(
-                "Usuário possui permissão, status ativo e MFA ativo",
+                "Usuário possui permissão e status ativo",
                 response.getMotivo());
     }
 
@@ -81,7 +80,6 @@ class ControleAcessoServiceTest {
                 "Maria",
                 "maria@email.com",
                 Role.GESTOR,
-                true,
                 StatusUsuario.ATIVO);
 
         when(usuarioRepository.buscarPorEmail("maria@email.com"))
@@ -103,12 +101,11 @@ class ControleAcessoServiceTest {
     }
 
     @Test
-    void deveNegarAcessoQuandoMfaNaoEstaAtivo() {
+    void devePermitirUsuarioVisualizarProprioPerfil() {
         Usuario joao = new Usuario(
                 "João",
                 "joao@email.com",
                 Role.USER,
-                false,
                 StatusUsuario.ATIVO);
 
         when(usuarioRepository.buscarPorEmail("joao@email.com"))
@@ -121,11 +118,11 @@ class ControleAcessoServiceTest {
         VerificarAcessoResponse response =
                 controleAcessoService.verificarAcesso(request);
 
-        assertFalse(response.isAcessoPermitido());
+        assertTrue(response.isAcessoPermitido());
         assertEquals("João", response.getUsuario());
         assertEquals(Permissao.VER_PERFIL, response.getPermissao());
         assertEquals(
-                "Usuário não pode acessar. MFA não está ativo",
+                "Usuário possui permissão e status ativo",
                 response.getMotivo());
     }
 
@@ -135,7 +132,6 @@ class ControleAcessoServiceTest {
                 "Bruno",
                 "bruno@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.BLOQUEADO);
 
         when(usuarioRepository.buscarPorEmail("bruno@email.com"))
@@ -160,7 +156,6 @@ class ControleAcessoServiceTest {
                 "Paula",
                 "paula@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.PENDENTE);
 
         when(usuarioRepository.buscarPorEmail("paula@email.com"))
@@ -205,7 +200,6 @@ class ControleAcessoServiceTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.ATIVO);
 
         when(usuarioRepository.buscarPorEmail("gustavo@email.com"))

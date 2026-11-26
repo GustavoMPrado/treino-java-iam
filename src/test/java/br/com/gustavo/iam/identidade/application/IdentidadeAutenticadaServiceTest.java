@@ -46,7 +46,6 @@ public class IdentidadeAutenticadaServiceTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.USER,
-                true,
                 StatusUsuario.ATIVO
         );
 
@@ -73,7 +72,6 @@ public class IdentidadeAutenticadaServiceTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.USER,
-                true,
                 StatusUsuario.ATIVO
         );
 
@@ -201,7 +199,6 @@ public class IdentidadeAutenticadaServiceTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.USER,
-                true,
                 StatusUsuario.ATIVO
         );
 
@@ -283,7 +280,6 @@ public class IdentidadeAutenticadaServiceTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.USER,
-                true,
                 StatusUsuario.ATIVO
         );
 

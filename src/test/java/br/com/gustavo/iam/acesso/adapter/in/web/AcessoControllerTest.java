@@ -55,35 +55,30 @@ class AcessoControllerTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.ATIVO);
 
         Usuario maria = new Usuario(
                 "Maria",
                 "maria@email.com",
                 Role.GESTOR,
-                true,
                 StatusUsuario.ATIVO);
 
         Usuario joao = new Usuario(
                 "João",
                 "joao@email.com",
                 Role.USER,
-                false,
                 StatusUsuario.ATIVO);
 
         Usuario bruno = new Usuario(
                 "Bruno",
                 "bruno@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.BLOQUEADO);
 
         Usuario paula = new Usuario(
                 "Paula",
                 "paula@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.PENDENTE);
 
         when(usuarioRepository.buscarPorEmail("gustavo@email.com"))
@@ -106,7 +101,7 @@ class AcessoControllerTest {
     }
 
     @Test
-    void devePermitirAcessoQuandoUsuarioTemPermissaoStatusAtivoEMfaAtivo() throws Exception {
+    void devePermitirAcessoQuandoUsuarioTemPermissaoEStatusAtivo() throws Exception {
         String body = """
                 {
                   "email": "gustavo@email.com",
@@ -123,7 +118,7 @@ class AcessoControllerTest {
                 .andExpect(jsonPath("$.permissao").value("DELETAR_USUARIO"))
                 .andExpect(jsonPath("$.acessoPermitido").value(true))
                 .andExpect(jsonPath("$.motivo")
-                        .value("Usuário possui permissão, status ativo e MFA ativo"));
+                        .value("Usuário possui permissão e status ativo"));
     }
 
     @Test
@@ -148,7 +143,7 @@ class AcessoControllerTest {
     }
 
     @Test
-    void deveNegarAcessoQuandoMfaNaoEstaAtivo() throws Exception {
+    void devePermitirUsuarioVisualizarProprioPerfil() throws Exception {
         String body = """
                 {
                   "email": "joao@email.com",
@@ -163,9 +158,9 @@ class AcessoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.usuario").value("João"))
                 .andExpect(jsonPath("$.permissao").value("VER_PERFIL"))
-                .andExpect(jsonPath("$.acessoPermitido").value(false))
+                .andExpect(jsonPath("$.acessoPermitido").value(true))
                 .andExpect(jsonPath("$.motivo")
-                        .value("Usuário não pode acessar. MFA não está ativo"));
+                        .value("Usuário possui permissão e status ativo"));
     }
 
     @Test

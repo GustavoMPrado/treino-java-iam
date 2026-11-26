@@ -51,7 +51,7 @@ class AuditoriaControllerTest {
                 "gustavo@email.com",
                 Permissao.DELETAR_USUARIO,
                 true,
-                "Usuário possui permissão, status ativo e MFA ativo",
+                "Usuário possui permissão e status ativo",
                 LocalDateTime.now());
 
         Page<TentativaAcesso> pagina = criarPagina(tentativa);
@@ -69,7 +69,7 @@ class AuditoriaControllerTest {
                 .andExpect(jsonPath("$.content[0].permissao").value("DELETAR_USUARIO"))
                 .andExpect(jsonPath("$.content[0].acessoPermitido").value(true))
                 .andExpect(jsonPath("$.content[0].motivo")
-                        .value("Usuário possui permissão, status ativo e MFA ativo"))
+                        .value("Usuário possui permissão e status ativo"))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.size").value(20))
                 .andExpect(jsonPath("$.number").value(0));
@@ -111,7 +111,7 @@ class AuditoriaControllerTest {
                 "gustavo@email.com",
                 Permissao.DELETAR_USUARIO,
                 true,
-                "Usuário possui permissão, status ativo e MFA ativo",
+                "Usuário possui permissão e status ativo",
                 LocalDateTime.now());
 
         Page<TentativaAcesso> pagina = criarPagina(tentativa);
@@ -132,7 +132,7 @@ class AuditoriaControllerTest {
                 .andExpect(jsonPath("$.content[0].permissao").value("DELETAR_USUARIO"))
                 .andExpect(jsonPath("$.content[0].acessoPermitido").value(true))
                 .andExpect(jsonPath("$.content[0].motivo")
-                        .value("Usuário possui permissão, status ativo e MFA ativo"));
+                        .value("Usuário possui permissão e status ativo"));
     }
 
     @Test

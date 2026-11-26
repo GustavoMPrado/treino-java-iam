@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 
 // Entidade representa um usuário do sistema.
-// A role define as permissões, enquanto o status e o MFA participam das decisões de acesso.
+// A role define as permissões, enquanto o status participa das decisões de acesso.
 
 
 @Entity
@@ -34,9 +34,6 @@ public class Usuario {
     @Column(nullable = false)
     private Role role;
 
-    @Column(name = "mfa_ativo", nullable = false)
-    private boolean mfaAtivo;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusUsuario status;
@@ -44,12 +41,11 @@ public class Usuario {
     protected Usuario() {
     }
 
-    public Usuario(String nome, String email, Role role, boolean mfaAtivo, StatusUsuario status) {
+    public Usuario(String nome, String email, Role role, StatusUsuario status) {
         this.id = UUID.randomUUID();
         this.nome = nome;
         this.email = email;
         this.role = role;
-        this.mfaAtivo = mfaAtivo;
         this.status = status;
     }
 
@@ -80,11 +76,6 @@ public class Usuario {
         return role;
     }
 
-    public boolean isMfaAtivo() {
-
-        return mfaAtivo;
-    }
-
     public StatusUsuario getStatus() {
 
         return status;
@@ -103,15 +94,5 @@ public class Usuario {
     public void marcarComoPendente() {
 
         this.status = StatusUsuario.PENDENTE;
-    }
-
-
-
-    public void ativarMfa() {
-        this.mfaAtivo = true;
-    }
-
-    public void desativarMfa() {
-        this.mfaAtivo = false;
     }
 }

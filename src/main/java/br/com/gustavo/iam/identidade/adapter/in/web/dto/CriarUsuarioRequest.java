@@ -24,9 +24,6 @@ public class CriarUsuarioRequest {
     @NotNull(message = "Role é obrigatória.")
     private Role role;
 
-    @NotNull(message = "MFA ativo é obrigatório.")
-    private Boolean mfaAtivo;
-
     @NotNull(message = "Status é obrigatório.")
     private StatusUsuario status;
 
@@ -45,10 +42,6 @@ public class CriarUsuarioRequest {
         return role;
     }
 
-    public Boolean getMfaAtivo() {
-        return mfaAtivo;
-    }
-
     public StatusUsuario getStatus(){
         return status;
     }
@@ -63,10 +56,6 @@ public class CriarUsuarioRequest {
 
     public void setRole(Role role) {
         this.role = role;
-    }
-
-    public void setMfaAtivo(Boolean mfaAtivo) {
-        this.mfaAtivo = mfaAtivo;
     }
 
     public void setStatus(StatusUsuario status) {

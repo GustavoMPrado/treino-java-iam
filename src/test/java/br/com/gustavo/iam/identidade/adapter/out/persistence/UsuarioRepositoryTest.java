@@ -30,7 +30,6 @@ class UsuarioRepositoryTest {
                 "Carlos",
                 "carlos@email.com",
                 Role.USER,
-                false,
                 StatusUsuario.ATIVO);
 
         usuarioRepository.salvar(usuario);
@@ -42,7 +41,6 @@ class UsuarioRepositoryTest {
         assertEquals("Carlos", usuarioEncontrado.get().getNome());
         assertEquals("carlos@email.com", usuarioEncontrado.get().getEmail());
         assertEquals(Role.USER, usuarioEncontrado.get().getRole());
-        assertFalse(usuarioEncontrado.get().isMfaAtivo());
         assertEquals(StatusUsuario.ATIVO, usuarioEncontrado.get().getStatus());
     }
 
@@ -52,7 +50,6 @@ class UsuarioRepositoryTest {
                 "Maria",
                 "maria@email.com",
                 Role.GESTOR,
-                true,
                 StatusUsuario.ATIVO);
 
         usuarioRepository.salvar(usuario);

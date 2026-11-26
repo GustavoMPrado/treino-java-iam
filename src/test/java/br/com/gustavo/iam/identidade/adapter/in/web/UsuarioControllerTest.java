@@ -1,9 +1,5 @@
 package br.com.gustavo.iam.identidade.adapter.in.web;
 
-import br.com.gustavo.iam.identidade.adapter.in.web.dto.ConfirmarMfaRequest;
-import br.com.gustavo.iam.identidade.adapter.in.web.dto.IniciarMfaResponse;
-import br.com.gustavo.iam.identidade.adapter.in.web.dto.UsuarioResponse;
-import br.com.gustavo.iam.identidade.application.MfaService;
 import br.com.gustavo.iam.identidade.application.UsuarioService;
 import br.com.gustavo.iam.identidade.application.port.in.UsuarioAutenticadoUseCase;
 import br.com.gustavo.iam.identidade.application.port.out.UsuarioRepositoryPort;
@@ -29,8 +25,6 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -50,9 +44,6 @@ class UsuarioControllerTest {
     private UsuarioRepositoryPort usuarioRepository;
 
     @MockitoBean
-    private MfaService mfaService;
-
-    @MockitoBean
     private UsuarioAutenticadoUseCase usuarioAutenticadoUseCase;
 
     @MockitoBean
@@ -64,7 +55,6 @@ class UsuarioControllerTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.ADMIN,
-                true,
                 StatusUsuario.ATIVO
         );
 
@@ -75,7 +65,6 @@ class UsuarioControllerTest {
                 "Maria",
                 "maria@email.com",
                 Role.GESTOR,
-                true,
                 StatusUsuario.ATIVO
         );
 
@@ -83,7 +72,6 @@ class UsuarioControllerTest {
                 "João",
                 "joao@email.com",
                 Role.USER,
-                false,
                 StatusUsuario.ATIVO
         );
 
@@ -126,7 +114,7 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$.nome").value("Gustavo"))
                 .andExpect(jsonPath("$.email").value("gustavo@email.com"))
                 .andExpect(jsonPath("$.role").value("ADMIN"))
-                .andExpect(jsonPath("$.mfaAtivo").value(true))
+                .andExpect(jsonPath("$.mfaAtivo").doesNotExist())
                 .andExpect(jsonPath("$.status").value("ATIVO"));
     }
 
@@ -148,7 +136,6 @@ class UsuarioControllerTest {
                   "nome": "Carlos",
                   "email": "carlos@email.com",
                   "role": "USER",
-                  "mfaAtivo": true,
                   "status": "ATIVO"
                 }
                 """;
@@ -163,7 +150,7 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$.nome").value("Carlos"))
                 .andExpect(jsonPath("$.email").value("carlos@email.com"))
                 .andExpect(jsonPath("$.role").value("USER"))
-                .andExpect(jsonPath("$.mfaAtivo").value(true))
+                .andExpect(jsonPath("$.mfaAtivo").doesNotExist())
                 .andExpect(jsonPath("$.status").value("ATIVO"));
     }
 
@@ -174,7 +161,6 @@ class UsuarioControllerTest {
                   "nome": "Outro Gustavo",
                   "email": "gustavo@email.com",
                   "role": "USER",
-                  "mfaAtivo": true,
                   "status": "ATIVO"
                 }
                 """;
@@ -197,7 +183,6 @@ class UsuarioControllerTest {
                   "nome": "",
                   "email": "carlos@email.com",
                   "role": "USER",
-                  "mfaAtivo": true,
                   "status": "ATIVO"
                 }
                 """;
@@ -218,7 +203,6 @@ class UsuarioControllerTest {
                   "nome": "Carlos",
                   "email": "email-invalido",
                   "role": "USER",
-                  "mfaAtivo": true,
                   "status": "ATIVO"
                 }
                 """;
@@ -239,7 +223,6 @@ class UsuarioControllerTest {
                   "nome": "Carlos",
                   "email": "carlos@email.com",
                   "role": "INVALIDA",
-                  "mfaAtivo": true,
                   "status": "ATIVO"
                 }
                 """;
@@ -263,7 +246,7 @@ class UsuarioControllerTest {
                 .andExpect(jsonPath("$.nome").value("Gustavo"))
                 .andExpect(jsonPath("$.email").value("gustavo@email.com"))
                 .andExpect(jsonPath("$.role").value("ADMIN"))
-                .andExpect(jsonPath("$.mfaAtivo").value(true))
+                .andExpect(jsonPath("$.mfaAtivo").doesNotExist())
                 .andExpect(jsonPath("$.status").value("ATIVO"));
     }
 
@@ -289,7 +272,6 @@ class UsuarioControllerTest {
               "nome": "Carlos",
               "email": "carlos@email.com",
               "role": "USER",
-              "mfaAtivo": true,
               "status": "ATIVO"
             }
             """;
@@ -321,13 +303,7 @@ class UsuarioControllerTest {
             "PATCH, /usuarios/gustavo@email.com/ativar, USER",
             "PATCH, /usuarios/gustavo@email.com/ativar, GESTOR",
             "PATCH, /usuarios/gustavo@email.com/marcar-pendente, USER",
-            "PATCH, /usuarios/gustavo@email.com/marcar-pendente, GESTOR",
-            "POST, /usuarios/gustavo@email.com/mfa/iniciar, USER",
-            "POST, /usuarios/gustavo@email.com/mfa/iniciar, GESTOR",
-            "POST, /usuarios/gustavo@email.com/mfa/confirmar, USER",
-            "POST, /usuarios/gustavo@email.com/mfa/confirmar, GESTOR",
-            "PATCH, /usuarios/gustavo@email.com/mfa/desativar, USER",
-            "PATCH, /usuarios/gustavo@email.com/mfa/desativar, GESTOR"
+            "PATCH, /usuarios/gustavo@email.com/marcar-pendente, GESTOR"
     })
     void deveNegarOperacoesAdministrativasParaRolesNaoAutorizadas(
             String metodo,
@@ -356,7 +332,6 @@ class UsuarioControllerTest {
                 "Gustavo",
                 "gustavo@email.com",
                 Role.USER,
-                true,
                 statusInicial
         );
 
@@ -372,70 +347,5 @@ class UsuarioControllerTest {
                         )))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(statusEsperado.name()));
-    }
-
-    @Test
-    void devePermitirAdminIniciarMfa() throws Exception {
-        when(mfaService.iniciarMfa("gustavo@email.com"))
-                .thenReturn(new IniciarMfaResponse(
-                        "gustavo@email.com",
-                        true,
-                        "123456"
-                ));
-
-        mockMvc.perform(post("/usuarios/gustavo@email.com/mfa/iniciar")
-                        .with(jwt().authorities(
-                                new SimpleGrantedAuthority("ROLE_ADMIN")
-                        )))
-                .andExpect(status().isOk());
-
-        verify(mfaService).iniciarMfa("gustavo@email.com");
-    }
-
-    @Test
-    void devePermitirAdminDesativarMfa() throws Exception {
-        mockMvc.perform(request(
-                        HttpMethod.PATCH,
-                        "/usuarios/gustavo@email.com/mfa/desativar"
-                )
-                        .with(jwt().authorities(
-                                new SimpleGrantedAuthority("ROLE_ADMIN")
-                        )))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mfaAtivo").value(false));
-    }
-
-    @Test
-    void devePermitirAdminConfirmarMfa() throws Exception {
-        when(mfaService.confirmarMfa(
-                eq("gustavo@email.com"),
-                any(ConfirmarMfaRequest.class)
-        )).thenReturn(new UsuarioResponse(
-                "Gustavo",
-                "gustavo@email.com",
-                Role.ADMIN,
-                true,
-                StatusUsuario.ATIVO
-        ));
-
-        String body = """
-            {
-              "codigo": "123456"
-            }
-            """;
-
-        mockMvc.perform(post("/usuarios/gustavo@email.com/mfa/confirmar")
-                        .with(jwt().authorities(
-                                new SimpleGrantedAuthority("ROLE_ADMIN")
-                        ))
-                        .contentType("application/json")
-                        .content(body))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mfaAtivo").value(true));
-
-        verify(mfaService).confirmarMfa(
-                eq("gustavo@email.com"),
-                any(ConfirmarMfaRequest.class)
-        );
     }
 }

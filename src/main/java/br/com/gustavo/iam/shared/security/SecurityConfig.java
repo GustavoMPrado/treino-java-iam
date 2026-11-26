@@ -70,15 +70,7 @@ public class SecurityConfig {
                                 HttpMethod.PATCH,
                                 "/usuarios/{email}/bloquear",
                                 "/usuarios/{email}/ativar",
-                                "/usuarios/{email}/marcar-pendente",
-                                "/usuarios/{email}/mfa/desativar"
-                        )
-                        .hasRole("ADMIN")
-
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/usuarios/{email}/mfa/iniciar",
-                                "/usuarios/{email}/mfa/confirmar"
+                                "/usuarios/{email}/marcar-pendente"
                         )
                         .hasRole("ADMIN")
 

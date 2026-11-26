@@ -62,7 +62,6 @@ public class UsuarioService {
                 request.getNome(),
                 request.getEmail(),
                 request.getRole(),
-                request.getMfaAtivo(),
                 request.getStatus()
         );
 
@@ -116,20 +115,6 @@ public class UsuarioService {
         return converterParaResponse(usuarioSalvo);
     }
 
-    // Desativa o MFA de uma identidade existente.
-    public UsuarioResponse desativarMfa(String email) {
-        Usuario usuario = buscarPorEmail(email);
-
-        if (usuario == null) {
-            throw new UsuarioNaoEncontradoException(email);
-        }
-
-        usuario.desativarMfa();
-
-        Usuario usuarioSalvo = usuarioRepository.salvar(usuario);
-
-        return converterParaResponse(usuarioSalvo);
-    }
 
     // Converte o objeto interno Usuario para o DTO de saída.
     private UsuarioResponse converterParaResponse(Usuario usuario) {
@@ -137,7 +122,6 @@ public class UsuarioService {
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getRole(),
-                usuario.isMfaAtivo(),
                 usuario.getStatus()
         );
     }
