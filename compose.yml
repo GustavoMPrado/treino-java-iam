@@ -60,6 +60,21 @@ services:
       keycloak-postgres:
         condition: service_healthy
 
+  openldap:
+    image: vegardit/openldap:2.6.x
+    container_name: treino-java-iam-openldap
+
+    environment:
+      LDAP_INIT_ORG_DN: dc=treino,dc=local
+      LDAP_INIT_ORG_NAME: Treino Java IAM
+      LDAP_INIT_ROOT_USER_PW: ${LDAP_ADMIN_PASSWORD:-ldap-dev-only}
+
+    volumes:
+      - openldap_data:/var/lib/ldap
+      - openldap_config:/etc/ldap/slapd.d
+
 volumes:
   postgres_data:
   keycloak_postgres_data:
+  openldap_data:
+  openldap_config:
